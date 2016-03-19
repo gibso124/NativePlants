@@ -133,7 +133,7 @@ summary(floral.area)
 floral.data<-read.csv("peakbloomdatawithcontrols_DG_20160315.csv",header=TRUE)
 
 #Bring in Vacuum data
-vac.data<-read.csv("VAc_Data_2015_DG_03172016.csv",header=TRUE)
+vac.data<-read.csv("Vac_Data_2015_JK_03182016.csv",header=TRUE)
 
 #***Corrections and standardizations***
 
@@ -149,6 +149,7 @@ floral.area$site<-NULL
 #There are multiple cases in which there are two different samples with the same identifier. I cannot verify which is correct or
 #what the identity of the other is, so I must remove the whole pair.
 #this subsetting function also removes "NA" observations
+
 #25SWMREC3CONTROL
 #26SWMREC2COLA5
 #30CRC2CONTROL
@@ -178,7 +179,7 @@ floral.corrected$floraldate<-mdy(floral.corrected$date)
 floral.corrected$date<-NULL
 is.numeric(vac.corrected$sample)
 vac.corrected$vacdate<-mdy(vac.corrected$date)
-vac.data$date<-NULL
+vac.data$date<-TRUE
 
 #Lubridate weeks start on the first day of the year. ISOweek week one starts on the first sunday of the year.
 library(ISOweek)
@@ -193,13 +194,11 @@ floral.corrected$species2<-gsub('mowed','MOWED',floral.corrected$species1)
 floral.corrected$species<-NULL
 floral.corrected$species1<-NULL
 
-#Rename 'species' to 'species2' in vac.data
-vac.corrected$species2<-vac.corrected$species
+#Vac.data also inconsistent. Fix to all CAPS
+vac.corrected$species1<-gsub('control','CONTROL',vac.corrected$species)
+vac.corrected$species2<-gsub('mowed','MOWED',vac.corrected$species1)
 vac.corrected$species<-NULL
-
-#Rename 'species' to 'species2' in floral.area
-floral.area$species2<-floral.area$species
-floral.area$species<-NULL
+vac.corrected$species1<-NULL
 
 #Concatenate ISOweek, site, block, species2 in 'floral.data' to create a single variable that uniquely identifies each sample.
 #This column will then be created in the vac.data file so that the two files can be merged.
@@ -219,3 +218,35 @@ summary(all.data)
 
 #Export Data
 write.csv(all.data, 'Merged_Data2.csv')
+
+
+###################
+###################
+
+#Finding unmatched pairs in all.data
+is.factor(all.data$sample)
+as.factor(all.data$sample)
+
+all.data.sample.NA2<-all.data[is.na(all.data$sample),]
+write.csv(all.data.sample.NA2, 'all.data.sample.NA2.csv')
+
+
+floral.test<-floral.corrected[which(floral.corrected$sample_ident =="22_SWMREC_1_MOWED"),]
+vac.test<-vac.corrected[which(vac.corrected$sample_ident =="22_SWMREC_1_MOWED"),]
+
+all.test<-merge(floral.test,vac.test,by=c("sample_ident","site","block","species2","isoweek"),all.x=TRUE)
+summary(all.test)
+
+#######################################
+#######################################
++
+#Experimenting with alternative ways to extract peak bloom data.
+floral.subset<-floral.corrected[which(floral.corrected$site =="SWMREC" & floral.corrected$species2 == "ACMI2" & floral.corrected$isoweek == 25,26,27),]
+
+floral.subset2<-subset(floral.corrected, (site == "SWMREC" & species2 == "MOWED") 
+                       | (site == "SWMREC" & species2 == "CONTROL")
+                       | (site == "SWMREC" & species2 == "ACMI2" & (isoweek == 25 | isoweek == 26 | isoweek ==27))
+                       | (site == "SWMREC" & species2 == "ACMI2" & (isoweek == 25 | isoweek == 26 | isoweek ==27)))
+
+floral.subset2<-subset(floral.corrected, (site == "SWMREC" & species2 == "MOWED"))
+                                              
