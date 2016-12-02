@@ -44,7 +44,7 @@ floral.data<-merge(floral.data,floral.area,by="Species",all.x=TRUE)
 summary(floral.data)
 
 ##########################################################################################
-#***Starting over. This section of code shows my path as I corrected mistakes.***
+#***Starting over. This section of code shows my path as I corrected mistakes.***(has ERRORS, DO NOT USE)***
 
 #Bring in floral area
 floral.area<-read.csv("floral_area.csv",header=TRUE)
@@ -122,7 +122,8 @@ floral.data$year<-year(floral.data$newdate)
 floral.data$week<-week(floral.data$newdate)
 
 ##########################################################################
-##########################################################################
+# *USE THIS FOR NOW (7-8-2016)*
+########################################################################## 
 #Bring in floral area
 floral.area<-read.csv("floral_area.csv",header=TRUE)
 
@@ -163,6 +164,16 @@ vac.corrected<-vac.data[which(vac.data$sample !="127" & vac.data$sample !="105" 
                               vac.data$sample !="1567" & vac.data$sample !="1569" &
                               vac.data$sample !="727" & vac.data$sample !="725"),]
 
+
+# #The lines in floral.data corresponding to those just deleted because of mislabeling must also be deleted before proceeding.
+# floral.corrected<-floral.data[which(floral.data$new_record !="60" & floral.data$new_record !="61" &
+#                                     floral.data$new_record !="768" & floral.data$new_record !="773" &
+#                                     floral.data$new_record !="409" & floral.data$new_record !="412" &
+#                                     floral.data$new_record !="1567" & floral.data$new_record !="1569" &
+#                                     floral.data$new_record !="727" & floral.data$new_record !="725"),]
+
+vac.corrected<-vac.data
+
 #8/4/15 4 CESTM (32SWMREC4CESTM) was accidentally measured twice. Delete second measurement
 floral.corrected<-floral.data[which(floral.data$new_record !="1139"),]
 summary(floral.data)
@@ -179,7 +190,6 @@ floral.corrected$floraldate<-mdy(floral.corrected$date)
 floral.corrected$date<-NULL
 is.numeric(vac.corrected$sample)
 vac.corrected$vacdate<-mdy(vac.corrected$date)
-vac.data$date<-TRUE
 
 #Lubridate weeks start on the first day of the year. ISOweek week one starts on the first sunday of the year.
 library(ISOweek)
@@ -189,32 +199,32 @@ vac.corrected$isoweek<-isoweek(vac.corrected$vacdate)
 
 #Control titles are insconsistent. vac.data -- 'MOWED' 'CONTROL' floral.data -- 'mowed' 'control'.  Fix to all CAPS.
 #Fixed CAPS problem in floral.data in the 'species' column
-floral.corrected$species1<-gsub('control','CONTROL',floral.corrected$species)
-floral.corrected$species2<-gsub('mowed','MOWED',floral.corrected$species1)
-floral.corrected$species<-NULL
-floral.corrected$species1<-NULL
+floral.corrected$species<-gsub('control','CONTROL',floral.corrected$species)
+floral.corrected$species<-gsub('mowed','MOWED',floral.corrected$species)
 
 #Vac.data also inconsistent. Fix to all CAPS
-vac.corrected$species1<-gsub('control','CONTROL',vac.corrected$species)
-vac.corrected$species2<-gsub('mowed','MOWED',vac.corrected$species1)
-vac.corrected$species<-NULL
-vac.corrected$species1<-NULL
+vac.corrected$species<-gsub('control','CONTROL',vac.corrected$species)
+vac.corrected$species<-gsub('mowed','MOWED',vac.corrected$species)
 
-#Concatenate ISOweek, site, block, species2 in 'floral.data' to create a single variable that uniquely identifies each sample.
+#Concatenate ISOweek, site, block, species in 'floral.data' to create a single variable that uniquely identifies each sample.
 #This column will then be created in the vac.data file so that the two files can be merged.
-floral.corrected$sample_ident<-paste(floral.corrected$isoweek,floral.corrected$site,floral.corrected$block,floral.corrected$species2,sep='_')
+floral.corrected$sample_ident<-paste(floral.corrected$isoweek,floral.corrected$site,floral.corrected$species,floral.corrected$block,sep='_')
 
-#Concatenate week, site, block, species2 in 'vac.data'
-vac.corrected$sample_ident<-paste(vac.corrected$isoweek,vac.corrected$site,vac.corrected$block,vac.corrected$species2,sep='_')
+#Concatenate week, site, block, species in 'vac.data'
+vac.corrected$sample_ident<-paste(vac.corrected$isoweek,vac.corrected$site,vac.corrected$species,vac.corrected$block,sep='_')
 
 #***Merging Files****
 
 #Merge floral.area into floral.data under new data frame 'floral.data.area'
-floral.data.area<-merge(floral.corrected,floral.area,by=c("species2"),all.x=TRUE)
+floral.data.area<-merge(floral.corrected,floral.area,by=c("species"),all.x=TRUE)
 
 #Merge vac.data into floral.data.area to create new data frame "all.data"
-all.data<-merge(floral.data.area,vac.corrected,by=c("sample_ident","site","block","species2","isoweek"),all.x=TRUE)
+all.data<-merge(floral.data.area,vac.corrected,by=c("sample_ident","site","block","species","isoweek"),all.x=TRUE)
 summary(all.data)
+
+#Merge floral.data.area into vac.data to create new data frame "all.data.vacfirst"
+all.data.vacfirst<-merge(vac.corrected,floral.data.area,by=c("sample_ident","site","block","species","isoweek"),all.x=TRUE)
+Summary(all.data.vacfirst)
 
 #Export Data
 write.csv(all.data, 'Merged_Data2.csv')
@@ -249,4 +259,93 @@ floral.subset2<-subset(floral.corrected, (site == "SWMREC" & species2 == "MOWED"
                        | (site == "SWMREC" & species2 == "ACMI2" & (isoweek == 25 | isoweek == 26 | isoweek ==27)))
 
 floral.subset2<-subset(floral.corrected, (site == "SWMREC" & species2 == "MOWED"))
+
+
+
+#####################################
+#####################################
+# For April 8 SARE Meeting. Merge scientific names and common names into vac data file.
+####################################
+
+#Bring in Vacuum data
+vac.data<-read.csv("Vac_Data_April8.csv",header=TRUE)
+
+# Bring in Names file.
+names.data<-read.csv('Names.csv',header=TRUE)
+
+# Bring in Phenology file.
+phenol.data<-read.csv('Phenology.csv',header=TRUE)
+
+#***Corrections and standardizations***
+
+#There are multiple cases in which there are two different samples with the same identifier. I cannot verify which is correct or
+#what the identity of the other is, so I must remove the whole pair.
+#this subsetting function also removes "NA" observations
+
+#25SWMREC3CONTROL
+#26SWMREC2COLA5
+#30CRC2CONTROL
+#37SWMREC4CONTROL
+#38NWMHRC1HEST
+#28_CRC_4_MOWED
+vac.corrected<-vac.data[which(vac.data$sample !="127" & vac.data$sample !="105" &
+                                vac.data$sample !="78" & vac.data$sample !="79" &
+                                vac.data$sample !="768" & vac.data$sample !="773" &
+                                vac.data$sample !="409" & vac.data$sample !="412" &
+                                vac.data$sample !="1567" & vac.data$sample !="1569" &
+                                vac.data$sample !="727" & vac.data$sample !="725"),]
+
+
+#I know that the dates of floral data do not always match the dates of vac data (multiple sampling days)
+#extract month of year. Week is very useful for a phenology type analyses
+#because you don't have to deal with day-of-month numbers starting over 
+#in the middle of a phenological event.
+#Use Lubridate package to convert dates to week of year.
+library(lubridate)
+#format original dates in a new column in ISO format.
+vac.corrected$vacdate<-mdy(vac.corrected$date)
+vac.data$date<-TRUE
+
+#Lubridate weeks start on the first day of the year. ISOweek week one starts on the first sunday of the year.
+library(ISOweek)
+vac.corrected$isoweek<-isoweek(vac.corrected$vacdate)
+
+#Vac.data also inconsistent. Fix to all CAPS
+vac.corrected$species<-gsub('control','CONTROL',vac.corrected$species)
+vac.corrected$species<-gsub('mowed','MOWED',vac.corrected$species)
+
+
+#Concatenate week, site, block, species2 in 'vac.data'
+vac.corrected$sample_ident<-paste(vac.corrected$isoweek,vac.corrected$site,vac.corrected$block,vac.corrected$species,sep='_')
+
+#***Merging Files****
+
+#Merge names.data into vac.data.area to create new data frame "all.data"
+all.data<-merge(vac.corrected,names.data,by=c("species"),all.x=TRUE)
+all.data<-merge(all.data,phenol.data,by=c('species'),all.x=TRUE)
+summary(all.data)
+
+#Export Data
+write.csv(all.data, 'data_with_names.csv')
+
+
+#*******************
+ne<-read.csv("NE_Taxa_by_Plant.csv",header=TRUE,`rownames<-`(x,1))
+
+library("GGally")
+bip = network(ne,
+              matrix.type = "bipartite",
+              ignore.eval = FALSE,
+              names.eval = "weights")
+bip
+ggnet2(bip, label = TRUE)
+
+#for the interaction matrix:
+library("sna")
+library("bipartite") #Plotweb info on pg 93 of Bipartite PDF
+
+web<-plotweb(ne, method="normal", empty= TRUE) #export as 10" x 16" landscape PDF
+web
+PDI(ne, normalise=TRUE, log=FALSE)
+
                                               
