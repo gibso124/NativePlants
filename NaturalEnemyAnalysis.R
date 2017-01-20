@@ -150,7 +150,7 @@ floral.area$site<-NULL
 #Sample variable in vac.data is reading as character, which doesn't wort properly.  
 is.character(vac.data$sample)
 is.factor(vac.data$sample) #data type is factor, but it sorts as if character
-vac.data$sample<-gsub('--',NA,vac.data$sample)#don't use quotes, b/c that means text string
+vac.data$sample<-gsub('--',9999,vac.data$sample)#9999 indicates no sample vial/number. Don't use quotes, b/c that means text string
 vac.data$sample<-as.numeric(vac.data$sample)
 
 #There are multiple cases in which there are two different samples with the same identifier. I cannot verify which is correct or
@@ -393,9 +393,81 @@ names(mpeakref)[names(mpeakref) == 'variable']<-'species'
 names(mpeakref)[names(mpeakref) == 'value']<-'peak'
 
 
+#******************
+# Bring in full dataset of floral data and apply same corrections as to PeakBloomFloral
+#******************
 
-
-#Bring in floral area (complete version)
+#Bring in floral data (complete version)
 floral<-read.csv("2015_floral_Data_20160302.csv",header=TRUE)
+
+#8/4/15 4 CESTM (32SWMREC4CESTM) was accidentally measured twice. Delete second measurement
+floral.clean<-floral[which(floral$record !="1139"),]
+summary(floral)
+summary(floral.clean)
+
+#I know that the dates of floral data do not always match the dates of vac data (multiple sampling days)
+#extract month of year. Week is very useful for a phenology type analyses
+#because you don't have to deal with day-of-month numbers starting over 
+#in the middle of a phenological event.
+#Use Lubridate package to convert dates to week of year.
+is.factor(floral.clean$date)
+
+library(lubridate)
+#format original dates in a new column in ISO format.
+floral.clean$date<-mdy(floral.clean$date)
+
+#Lubridate weeks start on the first day of the year. ISOweek week one starts on the first sunday of the year.
+library(ISOweek)
+floral.clean$week<-isoweek(floral.clean$date)
+
+
+#Control titles are insconsistent. vac.data -- 'MOWED' 'CONTROL' floral.data -- 'mowed' 'control'.  Fix to all CAPS.
+#Fixed CAPS problem in floral.data in the 'species' column
+floral.clean$species<-gsub('control','CONTROL',floral.clean$species)
+floral.clean$species<-gsub('mowed','MOWED',floral.clean$species)
+
+
+#******************
+# Merge mpeakref into other files
+#******************
+
+#Merge mpeakref into floral.clean.
+floral.clean2<-merge(floral.clean,mpeakref,by=c('site','week','species'),all.x=TRUE)
+
+#Subset by peakbloom from mpeakref
+peak.floral.clean<-subset(floral.clean2, peak == "y")#total=1657
+#Outgroup of subset by peakbloom from mpeakref
+floral.notpeak<-subset(floral.clean2, peak == "n")#Total=720
+
+########
+
+#Merge mpeakref into vac.corrected. 
+vac.corr2<-merge(vac.corrected,mpeakref,by=c('site','week','species'),all.x=TRUE)
+
+#Subset by peakbloom from mpeakref
+vac.peak<-subset(vac.corr2, peak == "y")#total=1595
+#Outgroup of subset by peakbloom from mpeakref
+vac.notpeak<-subset(vac.corr2, peak == "n")#total=45
+
+##########
+
+#Merge mpeakref into floral.corrected.
+floral.corr2<-merge(floral.corrected,mpeakref,by=c('site','week','species'),all.x=TRUE)
+
+#Subset by peakbloom from mpeakref
+floral.corrpeak<-subset(floral.corr2, peak == "y")#total=1617
+#Outgroup of subset by peakbloom from mpeakref
+floral.corr.notpeak<-subset(floral.corr2, peak == "n")#total=29
+
+#RESULTS: There is much disagreement between Logan's "PeakBloomData" and
+#the peak bloom data set produced with the full data and refe matrix.
+#There are both ommissions and insertions.
+##########
+
+#Merge vac.peak into peak.floral.clean
+vac.into.floral<-merge(peak.floral.clean,vac.peak,by=c('site','week','species','block'),all.x=TRUE)
+
+#merge peak.floral.clean into vac.peak
+floral.into.vac<-merge(vac.peak,peak.floral.clean,by=c('site','week','species','block'),all.x=TRUE)
 
 
