@@ -147,6 +147,12 @@ floral.area$avgarea<-rowMeans(floral.area[,5:9])
 #Remove site from floral.area
 floral.area$site<-NULL
 
+#Sample variable in vac.data is reading as character, which doesn't wort properly.  
+is.character(vac.data$sample)
+is.factor(vac.data$sample) #data type is factor, but it sorts as if character
+vac.data$sample<-gsub('--',NA,vac.data$sample)#don't use quotes, b/c that means text string
+vac.data$sample<-as.numeric(vac.data$sample)
+
 #There are multiple cases in which there are two different samples with the same identifier. I cannot verify which is correct or
 #what the identity of the other is, so I must remove the whole pair.
 #this subsetting function also removes "NA" observations
@@ -165,14 +171,7 @@ vac.corrected<-vac.data[which(vac.data$sample !="127" & vac.data$sample !="105" 
                               vac.data$sample !="727" & vac.data$sample !="725"),]
 
 
-# #The lines in floral.data corresponding to those just deleted because of mislabeling must also be deleted before proceeding.
-# floral.corrected<-floral.data[which(floral.data$new_record !="60" & floral.data$new_record !="61" &
-#                                     floral.data$new_record !="768" & floral.data$new_record !="773" &
-#                                     floral.data$new_record !="409" & floral.data$new_record !="412" &
-#                                     floral.data$new_record !="1567" & floral.data$new_record !="1569" &
-#                                     floral.data$new_record !="727" & floral.data$new_record !="725"),]
 
-vac.corrected<-vac.data
 
 #8/4/15 4 CESTM (32SWMREC4CESTM) was accidentally measured twice. Delete second measurement
 floral.corrected<-floral.data[which(floral.data$new_record !="1139"),]
@@ -193,8 +192,8 @@ vac.corrected$vacdate<-mdy(vac.corrected$date)
 
 #Lubridate weeks start on the first day of the year. ISOweek week one starts on the first sunday of the year.
 library(ISOweek)
-floral.corrected$isoweek<-isoweek(floral.corrected$floraldate)
-vac.corrected$isoweek<-isoweek(vac.corrected$vacdate)
+floral.corrected$week<-isoweek(floral.corrected$floraldate)
+vac.corrected$week<-isoweek(vac.corrected$vacdate)
 
 
 #Control titles are insconsistent. vac.data -- 'MOWED' 'CONTROL' floral.data -- 'mowed' 'control'.  Fix to all CAPS.
@@ -206,12 +205,12 @@ floral.corrected$species<-gsub('mowed','MOWED',floral.corrected$species)
 vac.corrected$species<-gsub('control','CONTROL',vac.corrected$species)
 vac.corrected$species<-gsub('mowed','MOWED',vac.corrected$species)
 
-#Concatenate ISOweek, site, block, species in 'floral.data' to create a single variable that uniquely identifies each sample.
+#Concatenate week, site, block, species in 'floral.data' to create a single variable that uniquely identifies each sample.
 #This column will then be created in the vac.data file so that the two files can be merged.
-floral.corrected$sample_ident<-paste(floral.corrected$isoweek,floral.corrected$site,floral.corrected$species,floral.corrected$block,sep='_')
+floral.corrected$sample_ident<-paste(floral.corrected$week,floral.corrected$site,floral.corrected$species,floral.corrected$block,sep='_')
 
 #Concatenate week, site, block, species in 'vac.data'
-vac.corrected$sample_ident<-paste(vac.corrected$isoweek,vac.corrected$site,vac.corrected$species,vac.corrected$block,sep='_')
+vac.corrected$sample_ident<-paste(vac.corrected$week,vac.corrected$site,vac.corrected$species,vac.corrected$block,sep='_')
 
 #***Merging Files****
 
@@ -219,11 +218,11 @@ vac.corrected$sample_ident<-paste(vac.corrected$isoweek,vac.corrected$site,vac.c
 floral.data.area<-merge(floral.corrected,floral.area,by=c("species"),all.x=TRUE)
 
 #Merge vac.data into floral.data.area to create new data frame "all.data"
-all.data<-merge(floral.data.area,vac.corrected,by=c("sample_ident","site","block","species","isoweek"),all.x=TRUE)
+all.data<-merge(floral.data.area,vac.corrected,by=c("sample_ident","site","block","species","week"),all.x=TRUE)
 summary(all.data)
 
 #Merge floral.data.area into vac.data to create new data frame "all.data.vacfirst"
-all.data.vacfirst<-merge(vac.corrected,floral.data.area,by=c("sample_ident","site","block","species","isoweek"),all.x=TRUE)
+all.data.vacfirst<-merge(vac.corrected,floral.data.area,by=c("sample_ident","site","block","species","week"),all.x=TRUE)
 Summary(all.data.vacfirst)
 
 #Export Data
@@ -244,21 +243,25 @@ write.csv(all.data.sample.NA2, 'all.data.sample.NA2.csv')
 floral.test<-floral.corrected[which(floral.corrected$sample_ident =="22_SWMREC_1_MOWED"),]
 vac.test<-vac.corrected[which(vac.corrected$sample_ident =="22_SWMREC_1_MOWED"),]
 
-all.test<-merge(floral.test,vac.test,by=c("sample_ident","site","block","species2","isoweek"),all.x=TRUE)
+all.test<-merge(floral.test,vac.test,by=c("sample_ident","site","block","species2","week"),all.x=TRUE)
 summary(all.test)
 
 #######################################
 #######################################
 +
 #Experimenting with alternative ways to extract peak bloom data.
-floral.subset<-floral.corrected[which(floral.corrected$site =="SWMREC" & floral.corrected$species2 == "ACMI2" & floral.corrected$isoweek == 25,26,27),]
+floral.subset<-floral.corrected[which(floral.corrected$site =="SWMREC" & floral.corrected$species == "ACMI2" & floral.corrected$week == 25,26,27),]
 
-floral.subset2<-subset(floral.corrected, (site == "SWMREC" & species2 == "MOWED") 
-                       | (site == "SWMREC" & species2 == "CONTROL")
-                       | (site == "SWMREC" & species2 == "ACMI2" & (isoweek == 25 | isoweek == 26 | isoweek ==27))
-                       | (site == "SWMREC" & species2 == "ACMI2" & (isoweek == 25 | isoweek == 26 | isoweek ==27)))
+floral.subset2<-subset(floral.corrected, (site == "SWMREC" & species == "MOWED") 
+                       | (site == "SWMREC" & species == "CONTROL")
+                       | (site == "SWMREC" & species == "ACMI2" & (week == 25 | week == 26 | week ==27))
+                       | (site == "SWMREC" & species == "ACMI2" & (week == 25 | week == 26 | week ==27)))
 
-floral.subset2<-subset(floral.corrected, (site == "SWMREC" & species2 == "MOWED"))
+floral.subset2<-subset(floral.corrected, (site == "SWMREC" & species == "MOWED"))
+
+
+
+
 
 
 
@@ -308,7 +311,7 @@ vac.data$date<-TRUE
 
 #Lubridate weeks start on the first day of the year. ISOweek week one starts on the first sunday of the year.
 library(ISOweek)
-vac.corrected$isoweek<-isoweek(vac.corrected$vacdate)
+vac.corrected$week<-isoweek(vac.corrected$vacdate)
 
 #Vac.data also inconsistent. Fix to all CAPS
 vac.corrected$species<-gsub('control','CONTROL',vac.corrected$species)
@@ -316,7 +319,7 @@ vac.corrected$species<-gsub('mowed','MOWED',vac.corrected$species)
 
 
 #Concatenate week, site, block, species2 in 'vac.data'
-vac.corrected$sample_ident<-paste(vac.corrected$isoweek,vac.corrected$site,vac.corrected$block,vac.corrected$species,sep='_')
+vac.corrected$sample_ident<-paste(vac.corrected$week,vac.corrected$site,vac.corrected$block,vac.corrected$species,sep='_')
 
 #***Merging Files****
 
@@ -329,7 +332,9 @@ summary(all.data)
 write.csv(all.data, 'data_with_names.csv')
 
 
-#*******************
+#******************
+# Experimenting with Bipartite Graphs
+#******************
 ne<-read.csv("NE_Taxa_by_Plant.csv",header=TRUE,`rownames<-`(x,1))
 
 library("GGally")
@@ -348,4 +353,49 @@ web<-plotweb(ne, method="normal", empty= TRUE) #export as 10" x 16" landscape PD
 web
 PDI(ne, normalise=TRUE, log=FALSE)
 
-                                              
+#******************
+# Using the Controls as normalizing factors for data
+#******************
+
+
+#Copied from Lampyrid code
+# weather1<-ddply(weather, c("year", "week"), summarise,
+#                 Tmax=max(air_temp_max_clean), Tmin=min(air_temp_min_clean), 
+#                 dd.accum=max(dd.accum), prec.accum=max(prec.accum), 
+#                 rain.days=sum(rain.days), prec.accum.0=max(prec.accum.0))
+
+#Remove controls from vacuum data
+vac.nocontrols<-vac.corrected[which(vac.corrected$species !="MOWED" & vac.corrected$species !="CONTROL"),]
+
+#Create data frame for controls only
+control.data<-subset(vac.corrected, species == "MOWED" | species == "CONTROL")
+
+#Summarise controls
+#Concatenate week, site
+control.data$week_site<-paste(control.data$week,control.data$site,sep='_')
+#summarise week_site using ddply
+library("plyr")
+control.summary<-ddply(control.data, c("site", 'week'),summarise,
+                      arachnida=mean(arachnida),anthocoridae=mean(anthocoridae))
+
+
+#******************
+# extracting peak bloom observations using reference matrix
+#******************
+
+#Bring in reference matrix
+peakref<-read.csv("peak_reference_matrix2015.csv")
+
+#melt the matrix, rename columns
+library("reshape")
+mpeakref<-melt(peakref, id=c("site","week"))
+names(mpeakref)[names(mpeakref) == 'variable']<-'species'
+names(mpeakref)[names(mpeakref) == 'value']<-'peak'
+
+
+
+
+#Bring in floral area (complete version)
+floral<-read.csv("2015_floral_Data_20160302.csv",header=TRUE)
+
+
