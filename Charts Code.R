@@ -6,13 +6,13 @@ library(ggplot2)
 
 #If you want to use a subset or any other change, do that all outside ggplot2
 #This way, the code for the plot itself can remain exactly the same.
-barplot.1<-ggplot(NWMHRC, aes(x=reorder(species, DOYphenol), y=ne, fill=as.factor(species)))+ 
+barplot.1<-ggplot(controls.summary, aes(x=week, y=control_ne, fill=as.factor(week)))+ 
   geom_bar(stat="identity", 
            colour="black", 
            size=0.25)+
-  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se), 
-                    width=.4,
-                    size=0.25)+
+  # geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se), 
+  #                   width=.4,
+  #                   size=0.25)+
   theme_bw(base_size = 15)+
   guides(fill=FALSE)+
   labs(title='\n Total NE - NWMHRC')+
@@ -27,9 +27,9 @@ barplot.1<-ggplot(NWMHRC, aes(x=reorder(species, DOYphenol), y=ne, fill=as.facto
                                  #vjust=0,   #(in [0, 1])
                                  hjust=1))+ #(in [0, 1])
   ylab("\nMean natural enemies / sample")+
-  xlab("Plant species\n")#+
+  xlab("Plant species\n")+
 #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
- # facet_wrap(~site,ncol=1, scales='free_y')#3 plots side by side (by site) in single object
+  facet_wrap(~site,ncol=1, scales='free_y')#3 plots side by side (by site) in single object
 barplot.1
 
 
@@ -76,9 +76,14 @@ summary.combined.sites<-ddply(all.with.controls, c('species'),summarise,
                        herb.se=sd(herb_total)/sqrt(length(herb_total)),
                        DOYphenol=mean(DOY))#average dates of all samples
                         #returns some 'NaN' b/c there is only one sample for a species
-
-
-
+#Summarize: controls
+controls.summary$sitenum<-controls.summary$site
+controls.summary$sitenum<-gsub('NWMHRC','1',controls.summary$sitenum)
+controls.summary$sitenum<-gsub('CRC','2',controls.summary$sitenum)
+controls.summary$sitenum<-gsub('SWMREC','3',controls.summary$sitenum)
+controls.summary<-controls.summary[order(controls.summary$sitenum, 
+                                        controls.summary$week),]
+controls.summary$site<-factor(controls.summary$site, levels=unique(controls.summary$site))
 
 
 #Code with controls normalization
