@@ -6,16 +6,16 @@ library(ggplot2)
 
 #If you want to use a subset or any other change, do that all outside ggplot2
 #This way, the code for the plot itself can remain exactly the same.
-barplot.1<-ggplot(summary.all, aes(x=week, y=sum_all_arthropods, fill=as.factor(week)))+ 
+barplot.1<-ggplot(summarized.data, aes(x=reorder(species,DOYphenol), y=ne, fill=as.factor(species)))+ 
   geom_bar(stat="identity", 
            colour="black", 
            size=0.25)+
-  # geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se), 
-  #                   width=.4,
-  #                   size=0.25)+
+  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se), 
+                     width=.4,
+                     size=0.25)+
   theme_bw(base_size = 15)+
   guides(fill=FALSE)+
-  labs(title='\n Total Arthropods')+
+  labs(title='\nMean Natural Enemies - with controls overlaid')+
   theme(plot.title = element_text(face = 'bold',
                                   size = 20,
                                   hjust = 0.5),
@@ -26,13 +26,12 @@ barplot.1<-ggplot(summary.all, aes(x=week, y=sum_all_arthropods, fill=as.factor(
                                  size=7,    #(in pts)
                                  #vjust=0,   #(in [0, 1])
                                  hjust=1))+ #(in [0, 1])
-  ylab("\nSum of arthropds collected")+
-  xlab("Week\n")+
+  ylab("\nMean natural enemies / sample")+
+  xlab("Plant species\n")+
 #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+    geom_point(data=summarized.data, aes(x=as.numeric(reorder(species,DOYphenol)), y=ne_control, group=1, color=''))+
   facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
 barplot.1
-
-
 
 
 
@@ -44,6 +43,7 @@ summarized.data<-ddply(all.with.controls, c('site', 'species'),summarise,
                        ne=mean(ne_total),herb=mean(herb_total),
                        ne.se=sd(ne_total)/sqrt(length(ne_total)),
                        herb.se=sd(herb_total)/sqrt(length(herb_total)),
+                       ne_control=mean(control_ne),herb_control=mean(control_herb),
                        DOYphenol=mean(DOY))#average dates of all samples
                        #returns some 'NaN' b/c there is only one sample
 
