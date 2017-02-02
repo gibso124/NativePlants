@@ -6,7 +6,7 @@ library(ggplot2)
 
 #If you want to use a subset or any other change, do that all outside ggplot2
 #This way, the code for the plot itself can remain exactly the same.
-barplot.1<-ggplot(controls.summary, aes(x=week, y=control_ne, fill=as.factor(week)))+ 
+barplot.1<-ggplot(summary.all, aes(x=week, y=sum_all_arthropods, fill=as.factor(week)))+ 
   geom_bar(stat="identity", 
            colour="black", 
            size=0.25)+
@@ -15,7 +15,7 @@ barplot.1<-ggplot(controls.summary, aes(x=week, y=control_ne, fill=as.factor(wee
   #                   size=0.25)+
   theme_bw(base_size = 15)+
   guides(fill=FALSE)+
-  labs(title='\n Total NE - NWMHRC')+
+  labs(title='\n Total Arthropods')+
   theme(plot.title = element_text(face = 'bold',
                                   size = 20,
                                   hjust = 0.5),
@@ -26,10 +26,10 @@ barplot.1<-ggplot(controls.summary, aes(x=week, y=control_ne, fill=as.factor(wee
                                  size=7,    #(in pts)
                                  #vjust=0,   #(in [0, 1])
                                  hjust=1))+ #(in [0, 1])
-  ylab("\nMean natural enemies / sample")+
-  xlab("Plant species\n")+
+  ylab("\nSum of arthropds collected")+
+  xlab("Week\n")+
 #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
-  facet_wrap(~site,ncol=1, scales='free_y')#3 plots side by side (by site) in single object
+  facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
 barplot.1
 
 
@@ -53,7 +53,7 @@ names<-read.csv('Names.csv',header=TRUE)
 summarized.data<-merge(summarized.data,names,by=c('species'),all.x=TRUE)
 
 
-#Order sites
+#Order sites (NOTE: Add site num column earlier in other code)
 summarized.data$sitenum<-summarized.data$site
 summarized.data$sitenum<-gsub('NWMHRC','1',summarized.data$sitenum)
 summarized.data$sitenum<-gsub('CRC','2',summarized.data$sitenum)
@@ -85,6 +85,24 @@ controls.summary<-controls.summary[order(controls.summary$sitenum,
                                         controls.summary$week),]
 controls.summary$site<-factor(controls.summary$site, levels=unique(controls.summary$site))
 
+#Summarizing TOTAL insect abundances (including controls)
+library(plyr)
+summary.all<-ddply(all.data, c('site', 'week'),summarise,
+                       mean_all_arthropods=mean(ne_total+herb_total),
+                        sum_all_arthropods=sum(ne_total+herb_total),
+                       ne=mean(ne_total),herb=mean(herb_total),
+                       ne.se=sd(ne_total)/sqrt(length(ne_total)),
+                       herb.se=sd(herb_total)/sqrt(length(herb_total)),
+                       DOYphenol=mean(DOY))#average dates of all samples
+#returns some 'NaN' b/c there is only one sample
+
+summary.all$sitenum<-summary.all$site
+summary.all$sitenum<-gsub('NWMHRC','1',summary.all$sitenum)
+summary.all$sitenum<-gsub('CRC','2',summary.all$sitenum)
+summary.all$sitenum<-gsub('SWMREC','3',summary.all$sitenum)
+summary.all<-summary.all[order(summary.all$sitenum, 
+                               summary.all$week),]
+summary.all$site<-factor(summary.all$site, levels=unique(summary.all$site))
 
 #Code with controls normalization
 # Summarized.data<-ddply(all.with.controls, c('site', 'species'),summarise,
