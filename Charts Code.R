@@ -44,11 +44,39 @@ barplot.1<-ggplot(summarized.data, aes(x=reorder(species,DOYphenol), y=ne, fill=
   ylab("\nMean natural enemies / sample")+
   xlab("Plant species\n")+
 #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
-    geom_point(data=summarized.data, aes(x=as.numeric(reorder(species,DOYphenol)), y=controls_ne, group=1))+
-    facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
+  geom_point(data=summarized.data, aes(x=as.numeric(reorder(species,DOYphenol)), y=controls_ne, group=1))+
+  facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
 barplot.1
 
-
+#### Standard Bar Plot - Norm ####
+library(ggplot2)
+barplot.2<-ggplot(norm, aes(x=reorder(species,DOYphenol), y=mnorm_ne, fill=as.factor(species)))+ 
+  geom_bar(stat="identity", 
+           colour="black", 
+           size=0.25)+
+  geom_errorbar(aes(ymin=mnorm_ne-ne.se, ymax=mnorm_ne+ne.se), 
+                width=.4,
+                size=0.25)+
+  theme_bw(base_size = 15)+
+  guides(fill=FALSE)+
+  labs(title='\nMean Natural Enemies - Normalized by Mowed')+
+  theme(plot.title = element_text(face = 'bold',
+                                  size = 20,
+                                  hjust = 0.5),
+        axis.title = element_text(face = 'plain',
+                                  size = 15),
+        axis.text.x=element_text(angle=55, 
+                                 face='plain', #("plain", "italic", "bold", "bold.italic")
+                                 size=7,    #(in pts)
+                                 #vjust=0,   #(in [0, 1])
+                                 hjust=1))+ #(in [0, 1])
+  ylab("\nLabel?")+
+  xlab("Plant species\n")+
+  # geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  geom_hline(yintercept=1, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  # geom_point(data=summarized.data, aes(x=as.numeric(reorder(species,DOYphenol)), y=controls_ne, group=1))+
+  facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
+barplot.2
 
 ##### Stacked Bar Plot ####
 library(ggplot2)
@@ -154,12 +182,13 @@ summary.combined.sites<-ddply(all.with.controls, c('species'),summarise,
 #Summarize: TOTAL insect abundance by week (including controls)
 {library(plyr)
 summary.all<-ddply(all.data, c('site', 'week'),summarise,
-                       mean_all_arthropods=mean(total_ne+total_herb),
+                        mean_all_arthropods=mean(total_ne+total_herb),
                         sum_all_arthropods=sum(total_ne+total_herb),
-                       ne=mean(total_ne),herb=mean(total_herb),
-                       ne.se=sd(total_ne)/sqrt(length(total_ne)),
-                       herb.se=sd(total_herb)/sqrt(length(total_herb)),
-                       DOYphenol=mean(DOY))#average dates of all samples
+                        ne=mean(total_ne),
+                        herb=mean(total_herb),
+                        ne.se=sd(total_ne)/sqrt(length(total_ne)),
+                        herb.se=sd(total_herb)/sqrt(length(total_herb)),
+                        DOYphenol=mean(DOY))#average dates of all samples
                         #returns some 'NaN' b/c there is only one sample
 }
 
@@ -179,10 +208,27 @@ summarized.data<-merge(summarized.data,names,by=c('species'),all.x=TRUE)
 
 
 #### Normalizing by Controls ####
-# Summarized.data<-ddply(all.with.controls, c('site', 'species'),summarise,
-#               norm_ne=mean(ne_total/control_ne),norm_herb=mean(herb_total/control_herb),
-#               ne.se=sd(ne_total/control_ne)/sqrt(length(ne_total)),
-#               .se=sd(herb_total/control_herb)/sqrt(length(herb_total)))
+norm<-ddply(all.with.controls, c('site', 'species','sitenum'),summarise,
+              norm_ne=mean(total_ne/controls_ne),
+              ne.se=sd(total_ne/controls_ne)/sqrt(length(total_ne)),
+            
+              norm_herb=mean(total_herb/controls_herb),
+              herb.se=sd(total_herb/controls_herb)/sqrt(length(total_herb)),
+            
+              mnorm_ne=mean(total_ne/mowed_ne),
+              mne.se=sd(total_ne/mowed_ne)/sqrt(length(total_ne)),
+              
+              mnorm_herb=mean(total_herb/mowed_herb),
+              mherb.se=sd(total_herb/mowed_herb)/sqrt(length(total_herb)),
+              DOYphenol=mean(DOY))#average dates of all samples,
+
+#Order by site in norm. 
+{#Defines 'site' as factor whose order in df can determine chart order
+  norm$site<-factor(norm$site, levels=unique(norm$site))
+  #Orders df as 1, 2, 3, (or NW, CRC, SW)
+  norm<-norm[order(norm$sitenum, 
+                   norm$DOYphenol, 
+                   norm$species),]}
 
 
 
