@@ -159,9 +159,49 @@ all.data<-merge(floral.peak,vac.peak,by=c('site','week','species','block'),all.x
 all.data2<-merge(vac.peak,floral.peak,by=c('site','week','species','block'),all.x=TRUE)
 
 
+#### CLEANING: Finding floral and vac merge problems #### ----
+
+## Find lines that failed to merge ##
+{
+#subset NAs from all.data and all.data2 to for easier to deal with "error lists"
+vac.missing<-subset(all.data, is.na(vac_date))
+#Subset columns for simpler viewing
+# library(dplyr)
+# vac.missing<- select(vac.errors, record.x, floral_date, site, week, species, block, sample_ident_floral, sample_ident_vac)
+
+floral.missing<-subset(all.data2, is.na(floral_date))
+#Subset columns for simpler viewing
+# library(dplyr)
+# floral.missing<- select(floral.errors, record.x, vac_date, site, week, species, block, sample_ident_vac, sample_ident_floral)
+}
+
+## Identifying duplicates in VAC data ##
+{
+  #Find duplicates, identify in new column
+  vac$duplicate<-duplicated(vac$sample_ident_vac)| duplicated(vac$sample_ident_vac, fromLast = TRUE)
+  #create new file for entries where 'duplicate'=TRUE
+  vac.duplicates<-vac[which(vac$duplicate==TRUE),]
+}
+
+## Identifying duplicates in FLORAL data ##
+{
+#Find duplicates, identify in new column
+  #5 pairs of duplicates: 2 peak, 3 non-peak
+  floral$duplicate<-duplicated(floral$sample_ident_floral)| duplicated(floral$sample_ident_floral, fromLast = TRUE)
+  #create new file for entries where 'duplicate'=TRUE
+  floral.duplicates<-floral[which(floral$duplicate==TRUE),]
+}
+
+## Save the evidence as CSV for more convenient sleuthing ##
+{#Export Data
+write.csv(vac.missing, 'vac.missing.csv')
+write.csv(floral.missing, 'floral.missing.csv')
+write.csv(vac.duplicates, 'vac.duplicates.csv')
+write.csv(floral.duplicates, 'floral.duplicates.csv')
+}
 
 ##########################################################################-
-# CREATE NE/HERBIVORE SUM VARIABLES #### ----
+#### CREATE NE/HERBIVORE SUM VARIABLES #### ----
 ##########################################################################-
 #A single NA each in the Bombyliidae, herb_mridiae, and curculionidae prevented NE variable from properly calculating
 all.data$bombyliidae<-replace(all.data$bombyliidae,which(is.na(all.data$bombyliidae)),0)
@@ -200,7 +240,7 @@ all.data$hemiptera_ne<-rowSums(all.data[,c("anthocoridae","nabidae","reduviidae"
 
 
 ##########################################################################-
-# SUMMARIZING CONTROLS BY WEEK #### ----
+#### SUMMARIZING CONTROLS BY WEEK #### ----
 ##########################################################################-
 #Remove observations without vac data pair (REMOVE ONCE DATA IS BETTER CLEANED)
 all.data<-subset(all.data, !is.na(vac_date))
@@ -247,10 +287,14 @@ all.with.controls<-merge(all.nocontrols,controls.summary,by=c('site','week','sit
 
 
 ##########################################################################-
+
+
+
+
 #### Miscellaneous Reference code #### ----
 ##########################################################################-
 #Export Data
-write.csv(all.data, 'Merged_Data2.csv')
+write.csv(df, 'title.csv')
 
 #Finding unmatched pairs in all.data
 is.factor(all.data$sample)
