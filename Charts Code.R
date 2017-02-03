@@ -1,11 +1,26 @@
 ##########################################################################
+#CHARTS
 ##########################################################################
-#MEETING WITH CHRISTIIE
-##########################################################################
-library(ggplot2)
 
 #If you want to use a subset or any other change, do that all outside ggplot2
-#This way, the code for the plot itself can remain exactly the same.
+#This way, the code for the plot itself can remain exactly the same.library(ggplot2)
+
+#### Original bar plot from the Lampyrid script ####
+# library(ggplot2)
+# peaks.year<-ggplot(peaks, aes(x=as.factor(year), y=peak, fill=as.factor(year)))+
+  #   scale_fill_manual(values=pal)+ #'pal' is an object with CB's custom pallette
+  #   geom_bar(stat="identity", colour="black")+
+  #   geom_errorbar(aes(ymin=peak-peak.err, ymax=peak+peak.err))+
+  #   theme_bw(base_size = 20)+
+  #   guides(fill=FALSE)+
+  #   ylab("\nDD at peak emergence\n")+
+  #   xlab("\nYear\n")+
+  #   theme(axis.text.x=element_text(angle=90))
+  # peaks.year
+
+
+#### Standard Bar Plot ####
+library(ggplot2)
 barplot.1<-ggplot(summarized.data, aes(x=reorder(species,DOYphenol), y=ne, fill=as.factor(species)))+ 
   geom_bar(stat="identity", 
            colour="black", 
@@ -29,106 +44,151 @@ barplot.1<-ggplot(summarized.data, aes(x=reorder(species,DOYphenol), y=ne, fill=
   ylab("\nMean natural enemies / sample")+
   xlab("Plant species\n")+
 #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
-    geom_point(data=summarized.data, aes(x=as.numeric(reorder(species,DOYphenol)), y=ne_control, group=1, color=''))+
-  facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
+    geom_point(data=summarized.data, aes(x=as.numeric(reorder(species,DOYphenol)), y=controls_ne, group=1))+
+    facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
 barplot.1
 
 
 
-#NMDs Code line s690-824 in Lampyrid code on GitHub
+##### Stacked Bar Plot ####
+library(ggplot2)
+stacked.bar<- ggplot(mtaxa.ne, aes(reorder(species,DOYphenol), mean_ne, fill = order)) +
+  geom_bar(position = "stack", stat = "identity")+
+  theme(axis.title = element_text(face = 'plain',
+                                  size = 10),
+        axis.text.x=element_text(angle=55, 
+                                 face='plain', #("plain", "italic", "bold", "bold.italic")
+                                 size=4,    #(in pts)
+                                 #vjust=0,   #(in [0, 1])
+                                 hjust=1))+ #(in [0, 1])
+  ylab("Mean natural enemies / sample")+
+  xlab("Plant species")+
+  facet_wrap(~ site,ncol=1)#3 plots side by side (by site) in single object
+stacked.bar
 
-#Summaraizing the data. 
+##Reshape data for stacked plot
+{#Extract columns
 library(plyr)
-summarized.data<-ddply(all.with.controls, c('site', 'species'),summarise,
-                       ne=mean(ne_total),herb=mean(herb_total),
-                       ne.se=sd(ne_total)/sqrt(length(ne_total)),
-                       herb.se=sd(herb_total)/sqrt(length(herb_total)),
-                       ne_control=mean(control_ne),herb_control=mean(control_herb),
+taxa.ne <- subset(summarized.data, select = c(1, 2, 3,4,6,8,10,12,14))
+DOY <- subset(summarized.data, select = c(1,2,29))
+
+#melt to long form, rename columns
+library("reshape")
+mtaxa.ne<-melt(taxa.ne, id=c("site","species",'sitenum'))
+names(mtaxa.ne)[names(mtaxa.ne) == 'variable']<-'order'
+names(mtaxa.ne)[names(mtaxa.ne) == 'value']<-'mean_ne'
+#Merge DOY into mtaxa.ne for ordering
+mtaxa.ne<-merge(mtaxa.ne,DOY,by = c('site','species'),all = TRUE)
+}
+
+
+#NMDs Code line s690-824 in Lampyrid code on GitHub ####
+
+#### Summarizing Data #####
+
+#Summarize: Means and SE of taxa (orders) and controls by species
+{library(plyr)
+summarized.data<-ddply(all.with.controls, c('site', 'species','sitenum'),summarise,
+                       arach=mean(arachnida), #NOTE: The destination var cannot have same name as source var.
+                       arach.se=sd(arachnida)/sqrt(length(arachnida)),
+                       
+                       dipt_ne=mean(diptera_ne),
+                       dipt_ne.se=sd(diptera_ne)/sqrt(length(diptera_ne)),
+                       
+                       neurop_ne=mean(neuroptera_ne),
+                       neurop_ne.se=sd(neuroptera_ne)/sqrt(length(neuroptera_ne)),
+                       
+                       coleop_ne=mean(coleoptera_ne),
+                       coleop_ne.se=sd(coleoptera_ne)/sqrt(length(coleoptera_ne)),
+                       
+                       hymenop_ne=mean(hymenoptera_ne),
+                       hymenop_ne.se=sd(hymenoptera_ne)/sqrt(length(hymenoptera_ne)),
+                       
+                       hemip_ne=mean(hemiptera_ne),
+                       hemip_ne.se=sd(hemiptera_ne)/sqrt(length(hemiptera_ne)),
+                       
+                       ne=mean(total_ne),
+                       ne.se=sd(total_ne)/sqrt(length(total_ne)),                      
+                      
+                       herb=mean(total_herb),
+                       herb.se=sd(total_herb)/sqrt(length(total_herb)),
+                       
+                       controls_ne=mean(controls_ne),
+                       controls_herb=mean(controls_herb),
+                       controls_all=mean(controls_all),
+                       mowed_ne=mean(mowed_ne),
+                       mowed_herb=mean(mowed_herb),
+                       mowed_all=mean(mowed_all),
+                       weedy_ne=mean(weedy_ne),
+                       weedy_herb=mean(weedy_herb),
+                       weedy_all=mean(weedy_all),
                        DOYphenol=mean(DOY))#average dates of all samples
                        #returns some 'NaN' b/c there is only one sample
+}
 
-#Adding Names
+#Order by site in summarized.data. 
+{#Defines 'site' as factor whose order in df can determine chart order
+summarized.data$site<-factor(summarized.data$site, levels=unique(summarized.data$site))
+#Orders df as 1, 2, 3, (or NW, CRC, SW)
+summarized.data<-summarized.data[order(summarized.data$sitenum, 
+                                       summarized.data$DOYphenol, 
+                                       summarized.data$species),]}
+
+#Summarize: subset individual site data frames from summarized.data
+{
+  SWMREC<-subset(summarized.data, site == "SWMREC")
+CRC<-subset(summarized.data, site == "CRC")
+NWMHRC<-subset(summarized.data, site == "NWMHRC")
+}
+
+#Summarize: combine data from sites (NE, Herb variables only).
+{library(plyr)
+summary.combined.sites<-ddply(all.with.controls, c('species'),summarise,
+                       ne=mean(total_ne),herb=mean(total_herb),
+                       ne.se=sd(total_ne)/sqrt(length(total_ne)),
+                       herb.se=sd(total_herb)/sqrt(length(total_herb)),
+                       DOYphenol=mean(DOY))#average dates of all samples
+                        #returns some 'NaN' b/c there is only one sample for a species
+}
+
+#Summarize: TOTAL insect abundance by week (including controls)
+{library(plyr)
+summary.all<-ddply(all.data, c('site', 'week'),summarise,
+                       mean_all_arthropods=mean(total_ne+total_herb),
+                        sum_all_arthropods=sum(total_ne+total_herb),
+                       ne=mean(total_ne),herb=mean(total_herb),
+                       ne.se=sd(total_ne)/sqrt(length(total_ne)),
+                       herb.se=sd(total_herb)/sqrt(length(total_herb)),
+                       DOYphenol=mean(DOY))#average dates of all samples
+                        #returns some 'NaN' b/c there is only one sample
+}
+
+#Order by site in summary.all. 
+{#Defines 'site' as factor whose order in df can determine chart order
+summary.all$site<-factor(summary.all$site, levels=unique(summary.all$site))
+#Orders df as 1, 2, 3, (or NW, CRC, SW)
+summary.all<-summary.all[order(summary.all$sitenum, 
+                               summary.all$week),]
+}
+
+#### Adding Full Names ####
 # Bring in Names file.
 names<-read.csv('Names.csv',header=TRUE)
+# Merge into data frame
 summarized.data<-merge(summarized.data,names,by=c('species'),all.x=TRUE)
 
 
-#Order sites (NOTE: Add site num column earlier in other code)
-summarized.data$sitenum<-summarized.data$site
-summarized.data$sitenum<-gsub('NWMHRC','1',summarized.data$sitenum)
-summarized.data$sitenum<-gsub('CRC','2',summarized.data$sitenum)
-summarized.data$sitenum<-gsub('SWMREC','3',summarized.data$sitenum)
-summarized.data<-summarized.data[order(summarized.data$sitenum, 
-                                       summarized.data$DOYphenol, 
-                                       summarized.data$species),]
-summarized.data$site<-factor(summarized.data$site, levels=unique(summarized.data$site))
-
-#Summarize: Individual Sites
-SWMREC<-subset(summarized.data, site == "SWMREC")
-CRC<-subset(summarized.data, site == "CRC")
-NWMHRC<-subset(summarized.data, site == "NWMHRC")
-
-#Summarize: combine sites
-library(plyr)
-summary.combined.sites<-ddply(all.with.controls, c('species'),summarise,
-                       ne=mean(ne_total),herb=mean(herb_total),
-                       ne.se=sd(ne_total)/sqrt(length(ne_total)),
-                       herb.se=sd(herb_total)/sqrt(length(herb_total)),
-                       DOYphenol=mean(DOY))#average dates of all samples
-                        #returns some 'NaN' b/c there is only one sample for a species
-#Summarize: controls
-controls.summary$sitenum<-controls.summary$site
-controls.summary$sitenum<-gsub('NWMHRC','1',controls.summary$sitenum)
-controls.summary$sitenum<-gsub('CRC','2',controls.summary$sitenum)
-controls.summary$sitenum<-gsub('SWMREC','3',controls.summary$sitenum)
-controls.summary<-controls.summary[order(controls.summary$sitenum, 
-                                        controls.summary$week),]
-controls.summary$site<-factor(controls.summary$site, levels=unique(controls.summary$site))
-
-#Summarizing TOTAL insect abundances (including controls)
-library(plyr)
-summary.all<-ddply(all.data, c('site', 'week'),summarise,
-                       mean_all_arthropods=mean(ne_total+herb_total),
-                        sum_all_arthropods=sum(ne_total+herb_total),
-                       ne=mean(ne_total),herb=mean(herb_total),
-                       ne.se=sd(ne_total)/sqrt(length(ne_total)),
-                       herb.se=sd(herb_total)/sqrt(length(herb_total)),
-                       DOYphenol=mean(DOY))#average dates of all samples
-#returns some 'NaN' b/c there is only one sample
-
-summary.all$sitenum<-summary.all$site
-summary.all$sitenum<-gsub('NWMHRC','1',summary.all$sitenum)
-summary.all$sitenum<-gsub('CRC','2',summary.all$sitenum)
-summary.all$sitenum<-gsub('SWMREC','3',summary.all$sitenum)
-summary.all<-summary.all[order(summary.all$sitenum, 
-                               summary.all$week),]
-summary.all$site<-factor(summary.all$site, levels=unique(summary.all$site))
-
-#Code with controls normalization
+#### Normalizing by Controls ####
 # Summarized.data<-ddply(all.with.controls, c('site', 'species'),summarise,
 #               norm_ne=mean(ne_total/control_ne),norm_herb=mean(herb_total/control_herb),
 #               ne.se=sd(ne_total/control_ne)/sqrt(length(ne_total)),
 #               .se=sd(herb_total/control_herb)/sqrt(length(herb_total)))
 
-#This is the original from the Lampyrid code
-# peaks.year<-ggplot(peaks, aes(x=as.factor(year), y=peak, fill=as.factor(year)))+
-#   scale_fill_manual(values=pal)+ #'pal' is an object with CB's custom pallette
-#   geom_bar(stat="identity", colour="black")+
-#   geom_errorbar(aes(ymin=peak-peak.err, ymax=peak+peak.err))+
-#   theme_bw(base_size = 20)+
-#   guides(fill=FALSE)+
-#   ylab("\nDD at peak emergence\n")+
-#   xlab("\nYear\n")+
-#   theme(axis.text.x=element_text(angle=90))
-# peaks.year
 
-##########################################################################
 
-##########################################################################
-# Code for pulling individual columns
-########################################################################## 
 
-#pulling out columns from a larger data frame
+#### General Code for subsetting columns from a df ####
+
 #both "dplyr" and "plyr" methods work.
 library(dplyr)
 plots2<- select(controls,week,ne_total)
