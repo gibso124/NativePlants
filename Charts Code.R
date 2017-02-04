@@ -1,4 +1,4 @@
-##########################################################################
+##########################################################################-
 #CHARTS
 ##########################################################################
 
@@ -109,6 +109,40 @@ names(mtaxa.ne)[names(mtaxa.ne) == 'value']<-'mean_ne'
 mtaxa.ne<-merge(mtaxa.ne,DOY,by = c('site','species'),all = TRUE)
 }
 
+
+#### Mowed by Week Bar Plot ####
+library(viridis)
+library(ggplot2)
+# barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_ne, fill=as.factor(week)))+  #NE only
+# barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_herb, fill=as.factor(week)))+  #herb only
+barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_all, fill=as.factor(week)))+  #both ne and herb
+  scale_fill_viridis(discrete=TRUE, option = 'plasma', direction = -1)+
+  geom_bar(stat="identity", 
+           colour="black", 
+           size=0.25)+
+  # geom_errorbar(aes(ymin=mowed_ne-mowed_ne.se, ymax=mowed_ne+mowed_ne.se), 
+  # geom_errorbar(aes(ymin=mowed_herb-mowed_herb.se, ymax=mowed_herb+mowed_herb.se),
+  geom_errorbar(aes(ymin=mowed_all-mowed_all.se, ymax=mowed_all+mowed_all.se),
+                width=.4,
+                size=0.25)+
+  theme_bw(base_size = 15)+
+  guides(fill=FALSE)+
+  labs(title='\nMowed Control - NE +Herb')+
+  theme(plot.title = element_text(face = 'bold',
+                                  size = 20,
+                                  hjust = 0.5),
+        axis.title = element_text(face = 'plain',
+                                  size = 15),
+        axis.text.x=element_text(angle=1, 
+                                 face='plain', #("plain", "italic", "bold", "bold.italic")
+                                 size=10,    #(in pts)
+                                 #vjust=0,   #(in [0, 1])
+                                 hjust=0.5))+ #(in [0, 1])
+  ylab("\nMean natural enemies / sample")+
+  xlab("Week of year\n")+
+  # geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  facet_wrap(~site,ncol=1)#3 plots side by side (by site) in single object
+barplot.1
 
 #NMDs Code line s690-824 in Lampyrid code on GitHub ####
 
