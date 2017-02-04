@@ -265,8 +265,13 @@ controls.summary<-ddply(controls, c('site', 'week','sitenum'),summarise,
                     controls_all=mean(total_ne+total_herb))
 mowed.summary<-ddply(mowed, c('site', 'week','sitenum'),summarise,
                     mowed_ne=mean(total_ne),
+                    mowed_ne.se=sd(total_ne)/sqrt(length(total_ne)),
+                    
                     mowed_herb=mean(total_herb),
-                    mowed_all=mean(total_ne+total_herb))
+                    mowed_herb.se=sd(total_herb)/sqrt(length(total_herb)),
+                    
+                    mowed_all=mean(total_ne+total_herb),
+                    mowed_all.se=sd(total_ne+total_herb)/sqrt(length(total_ne)))
 weedy.summary<-ddply(weedy, c('site', 'week','sitenum'),summarise,
                     weedy_ne=mean(total_ne),
                     weedy_herb=mean(total_herb),
