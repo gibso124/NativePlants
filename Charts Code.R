@@ -149,24 +149,24 @@ barplot.1
 # by spreading/compressing slight/large intervals into whole number intervals.
 library(viridis)
 library(ggplot2)
-# barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_DOY), y=mnorm_ne, fill=week))+
+barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_DOY), y=mnorm_ne, fill=week))+
 # barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_ne), y=mnorm_ne, fill=week))+
-barplot.2<-ggplot(SWMREC, aes(x=reorder(species,rank_DOY), y=ne, fill=week))+
-# barplot.2<-ggplot(SWMREC, aes(x=reorder(species,rank_ne), y=ne, fill=week))+
+# barplot.2<-ggplot(NWMHRC, aes(x=reorder(species,rank_DOY), y=ne, fill=week))+
+# barplot.2<-ggplot(NWMHRC, aes(x=reorder(species,rank_ne), y=ne, fill=week))+
     scale_fill_viridis(option = 'plasma', direction = -1)+
   geom_bar(stat="identity", 
            colour="black", 
            size=0.25)+
-    # geom_errorbar(aes(ymin=mnorm_ne-ne.se, ymax=mnorm_ne+ne.se), #Normalized error
-    geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se), # RAW error
+    geom_errorbar(aes(ymin=mnorm_ne-mne.se, ymax=mnorm_ne+mne.se), #Normalized error
+    # geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se), # RAW error
                 width=.4,
                 size=0.25)+
   theme_bw(base_size = 15)+
   guides(fill= 'colorbar')+
   theme(legend.position = c(0.1,.85))+
   # guides(fill = FALSE)+
-  # labs(title='\nMean Natural Enemies - Normalized by Mowed')+
-  labs(title='\nMean Natural Enemies')+
+  labs(title='\nMean Natural Enemies - Normalized by Mowed')+
+  # labs(title='\nMean Natural Enemies')+
   theme(plot.title = element_text(face = 'bold',
                                   size = 20,
                                   hjust = 0.5),
@@ -177,14 +177,16 @@ barplot.2<-ggplot(SWMREC, aes(x=reorder(species,rank_DOY), y=ne, fill=week))+
                                  size=7,    #(in pts)
                                  #vjust=0,   #(in [0, 1])
                                  hjust=1))+ #(in [0, 1])
-  ylab("\nLabel?")+
+  ylab("\nMean natural enemies / sample + SE")+
   xlab("Plant species\n")+
   # geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
-  # geom_hline(yintercept=1, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
-  geom_point(data=SWMREC, aes(x=reorder(species,rank_DOY), y=mowed_ne, group=1))+
-  # geom_point(data=SWMREC, aes(x=reorder(species,rank_ne), y=mowed_ne, group=1))+
+  geom_hline(yintercept=1, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  # geom_point(data=NWMHRC, aes(x=reorder(species,rank_DOY), y=mowed_ne, group=1))+
+  # geom_point(data=NWMHRC, aes(x=reorder(species,rank_ne), y=mowed_ne, group=1))+
     facet_wrap(~site,ncol=1, scales = 'free_x')#3 plots side by side (by site) in single object
 barplot.2
+
+
 
 
 #NMDs Code line s690-824 in Lampyrid code on GitHub ####
@@ -300,18 +302,20 @@ summarized.data<-merge(summarized.data,names,by=c('species'),all.x=TRUE)
 
 
 #### Normalizing by Controls ####
+library(plyr)
 norm<-ddply(all.with.controls, c('site', 'species','sitenum'),summarise,
-              norm_ne=mean(total_ne/controls_ne),
-              ne.se=sd(total_ne/controls_ne)/sqrt(length(total_ne)),
-            
-              norm_herb=mean(total_herb/controls_herb),
-              herb.se=sd(total_herb/controls_herb)/sqrt(length(total_herb)),
+              # norm_ne=mean(total_ne/controls_ne),   #### Don't need to use the vars if not using weedy control. ###
+              # ne.se=sd(total_ne/controls_ne)/sqrt(length(total_ne)),
+              # 
+              # norm_herb=mean(total_herb/controls_herb),
+              # herb.se=sd(total_herb/controls_herb)/sqrt(length(total_herb)),
             
               mnorm_ne=mean(total_ne/mowed_ne),
               mne.se=sd(total_ne/mowed_ne)/sqrt(length(total_ne)),
               
               mnorm_herb=mean(total_herb/mowed_herb),
               mherb.se=sd(total_herb/mowed_herb)/sqrt(length(total_herb)),
+              week=mean(week),
               DOYphenol=mean(DOY))#average dates of all samples,
 
 #Order by site in norm. 
