@@ -144,7 +144,7 @@ barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_all, fill=as.
   facet_wrap(~site,ncol=1)#3 plots side by side (by site) in single object
 barplot.1
 
-#### Bar Plots: Color by DOY ####
+#### Bar Plots: Color by DOY - NE ####
 #Fill by 'week' to get a color gradient that acurately displays time.  'Rank_DOY' distorted time
 # by spreading/compressing slight/large intervals into whole number intervals.
 library(viridis)
@@ -185,6 +185,53 @@ barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_DOY), y=mnorm_ne, fill=wee
   # geom_point(data=NWMHRC, aes(x=reorder(species,rank_ne), y=mowed_ne, group=1))+
     facet_wrap(~site,ncol=1, scales = 'free_x')#3 plots side by side (by site) in single object
 barplot.2
+
+
+
+
+#### Bar Plots: Color by DOY - HERB ####
+#Fill by 'week' to get a color gradient that acurately displays time.  'Rank_DOY' distorted time
+# by spreading/compressing slight/large intervals into whole number intervals.
+library(viridis)
+library(ggplot2)
+# barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_DOY), y=mnorm_herb, fill=week))+
+# barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_ne), y=mnorm_herb, fill=week))+
+barplot.2<-ggplot(NWMHRC, aes(x=reorder(species,rank_DOY), y=herb, fill=week))+
+# barplot.2<-ggplot(NWMHRC, aes(x=reorder(species,rank_ne), y=herb, fill=week))+
+  scale_fill_viridis(option = 'plasma', direction = -1)+
+  geom_bar(stat="identity", 
+           colour="black", 
+           size=0.25)+
+  # geom_errorbar(aes(ymin=mnorm_herb-mherb.se, ymax=mnorm_herb+mherb.se), #Normalized error
+  geom_errorbar(aes(ymin=herb-herb.se, ymax=herb+herb.se), # RAW error
+                width=.4,
+                size=0.25)+
+  theme_bw(base_size = 15)+
+  guides(fill= 'colorbar')+
+  theme(legend.position = c(0.2,.85))+
+  # guides(fill = FALSE)+
+  # labs(title='\nMean Herbivores - Normalized by Mowed')+
+  labs(title='\nMean Herbivores')+
+  theme(plot.title = element_text(face = 'bold',
+                                  size = 20,
+                                  hjust = 0.5),
+        axis.title = element_text(face = 'plain',
+                                  size = 15),
+        axis.text.x=element_text(angle=55, 
+                                 face='plain', #("plain", "italic", "bold", "bold.italic")
+                                 size=7,    #(in pts)
+                                 #vjust=0,   #(in [0, 1])
+                                 hjust=1))+ #(in [0, 1])
+  # ylab("\n(Control Mean herbivores / sample + SE) / Mowed Control")+
+  ylab("\nMean herbivores / sample + SE")+
+  xlab("Plant species\n")+
+  # geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  # geom_hline(yintercept=1, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  geom_point(data=NWMHRC, aes(x=reorder(species,rank_DOY), y=mowed_herb, group=1))+
+  # geom_point(data=NWMHRC, aes(x=reorder(species,rank_ne), y=mowed_herb, group=1))+
+  facet_wrap(~site,ncol=1, scales = 'free_x')#3 plots side by side (by site) in single object
+barplot.2
+
 
 
 
