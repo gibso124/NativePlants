@@ -144,13 +144,15 @@ barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_all, fill=as.
   facet_wrap(~site,ncol=1)#3 plots side by side (by site) in single object
 barplot.1
 
-#### Standard Bar Plot - Norm2 ####
+#### Bar Plots: Color by DOY ####
+#Fill by 'week' to get a color gradient that acurately displays time.  'Rank_DOY' distorted time
+# by spreading/compressing slight/large intervals into whole number intervals.
 library(viridis)
 library(ggplot2)
-# barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_DOY), y=mnorm_ne, fill=rank_DOY))+
-# barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_ne), y=mnorm_ne, fill=rank_DOY))+
-barplot.2<-ggplot(SWMREC, aes(x=reorder(species,rank_DOY), y=ne, fill=rank_DOY))+
-# barplot.2<-ggplot(SWMREC, aes(x=reorder(species,rank_ne), y=ne, fill=rank_DOY))+
+# barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_DOY), y=mnorm_ne, fill=week))+
+# barplot.2<-ggplot(nNWMHRC, aes(x=reorder(species,rank_ne), y=mnorm_ne, fill=week))+
+barplot.2<-ggplot(SWMREC, aes(x=reorder(species,rank_DOY), y=ne, fill=week))+
+# barplot.2<-ggplot(SWMREC, aes(x=reorder(species,rank_ne), y=ne, fill=week))+
     scale_fill_viridis(option = 'plasma', direction = -1)+
   geom_bar(stat="identity", 
            colour="black", 
@@ -160,7 +162,9 @@ barplot.2<-ggplot(SWMREC, aes(x=reorder(species,rank_DOY), y=ne, fill=rank_DOY))
                 width=.4,
                 size=0.25)+
   theme_bw(base_size = 15)+
-  guides(fill=FALSE)+
+  guides(fill= 'colorbar')+
+  theme(legend.position = c(0.1,.85))+
+  # guides(fill = FALSE)+
   # labs(title='\nMean Natural Enemies - Normalized by Mowed')+
   labs(title='\nMean Natural Enemies')+
   theme(plot.title = element_text(face = 'bold',
@@ -223,6 +227,7 @@ summarized.data<-ddply(all.with.controls, c('site', 'species','sitenum'),summari
                        weedy_ne=mean(weedy_ne),
                        weedy_herb=mean(weedy_herb),
                        weedy_all=mean(weedy_all),
+                       week=mean(week),
                        DOYphenol=mean(DOY))#average dates of all samples
                        #returns some 'NaN' b/c there is only one sample
 }
