@@ -250,10 +250,10 @@ all.with.controls$log_total_ne<-log10((all.with.controls$total_ne)+1)
 }
 
 library(ggplot2)
-histogram<-ggplot(SWMREC.raw, aes(x=log_total_ne))+ 
+histogram<-ggplot(all.with.controls, aes(x=log_total_ne))+ 
   # geom_histogram(binwidth = 3)+
-  geom_histogram(bins = 4)+
-  facet_wrap(~species,ncol=10, scales = 'free')#3 plots side by side (by site) in single object
+  geom_histogram(bins = 30)+
+  facet_wrap(~site,ncol=1, scales = 'free')#3 plots side by side (by site) in single object
 histogram
 
 #### Bar Plots: # Observations by species ####
@@ -459,3 +459,26 @@ library(dplyr)
 plots2<- select(controls,week,ne_total)
 library(plyr)
 plots <- subset(controls, select = c(1, 2, 77))
+
+
+#### NOTES from LOGAN 2-7-2017 ####
+
+# My data looks like Poisson distribution overall. Check into this.
+# Does the overall distribution matter or individual species?
+# Logan's cut off for analyzing a species was that it have at least 6 observations,
+# allowing him to remove the species that were distorting his model because they
+# had too few data points.
+# Binomial distribution is better for over-dispersed data, and is robust against differences 
+# in samples sizes between treatments.
+
+#Unknown package
+#To Build negative binomial model.  
+glm.Nb(x~y, ....)
+#To conduct pairwise comparisons referencing the model above.
+#Logan used Tukey (only because it is standard and known)
+gLHT()
+
+#Unkown package(s)
+#Function could be glmmAbb or glmmbuild
+#Model that is highly customizable and should fit the data well 
+glmmabb(x~y,family = Poisson)
