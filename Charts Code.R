@@ -236,6 +236,52 @@ barplot.2
 
 
 
+
+
+#### Histograms ####
+# Log10 transform total_ne
+all.with.controls$log_total_ne<-log10((all.with.controls$total_ne)+1)
+
+# Subset individual site data frames from all.with.controls
+{
+  SWMREC.raw<-subset(all.with.controls, site == "SWMREC")
+  CRC.raw<-subset(all.with.controls, site == "CRC")
+  NWMHRC.raw<-subset(all.with.controls, site == "NWMHRC")
+}
+
+library(ggplot2)
+histogram<-ggplot(SWMREC.raw, aes(x=log_total_ne))+ 
+  # geom_histogram(binwidth = 3)+
+  geom_histogram(bins = 4)+
+  facet_wrap(~species,ncol=10, scales = 'free')#3 plots side by side (by site) in single object
+histogram
+
+#### Bar Plots: # Observations by species ####
+library(ggplot2)
+barplot.1<-ggplot(summarized.data, aes(x=reorder(species,DOYphenol), y=freq, fill=as.factor(species)))+ 
+  geom_bar(stat="identity", 
+           colour="black", 
+           size=0.25)+
+  theme_bw(base_size = 15)+
+  guides(fill=FALSE)+
+  labs(title='\n# Observations per Species')+
+  theme(plot.title = element_text(face = 'bold',
+                                  size = 20,
+                                  hjust = 0.5),
+        axis.title = element_text(face = 'plain',
+                                  size = 15),
+        axis.text.x=element_text(angle=55, 
+                                 face='plain', #("plain", "italic", "bold", "bold.italic")
+                                 size=7,    #(in pts)
+                                 #vjust=0,   #(in [0, 1])
+                                 hjust=1))+ #(in [0, 1])
+  ylab("\n# Samples")+
+  xlab("Plant species\n")+
+  #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  facet_wrap(~site,ncol=1)#3 plots side by side (by site) in single object
+barplot.1
+
+
 #NMDs Code line s690-824 in Lampyrid code on GitHub ####
 
 #### Summarizing Data #####
@@ -279,6 +325,15 @@ summarized.data<-ddply(all.with.controls, c('site', 'species','sitenum'),summari
                        week=mean(week),
                        DOYphenol=mean(DOY))#average dates of all samples
                        #returns some 'NaN' b/c there is only one sample
+}
+
+#Summarize: 'freq' = # observations for species at a site
+{
+  #Create variable
+library(plyr)
+freq<-count(all.with.controls, c('site','species'), wt = NULL)
+#Merge into summarized.data
+summarized.data<-merge(summarized.data,freq,by = c('site','species'))
 }
 
 #Order by site in summarized.data. 
@@ -340,6 +395,7 @@ summary.all$site<-factor(summary.all$site, levels=unique(summary.all$site))
 summary.all<-summary.all[order(summary.all$sitenum, 
                                summary.all$week),]
 }
+
 
 #### Adding Full Names ####
 # Bring in Names file.
