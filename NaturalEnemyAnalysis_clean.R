@@ -24,11 +24,13 @@ area$site<-NULL
 #*******************
 
 #Bring in floral data (complete version)
-floral.RAW<-read.csv("2015_floral_Data_1.30.2017.csv",header=TRUE)
+# floral.RAW<-read.csv("2015_floral_Data_1.30.2017.csv",header=TRUE)
+floral.RAW<-read.csv("2015_floral_Data_1.30.2017_Refined.csv",header=TRUE)
 floral<-floral.RAW
 
 #Bring in Vacuum data
-vac.RAW<-read.csv("Vac_Data_2015_JK_03182016.csv",header=TRUE)
+# vac.RAW<-read.csv("Vac_Data_2015_JK_03182016.csv",header=TRUE)
+vac.RAW<-read.csv("Vac_Data_2015_DG_2-7-2017 Refined.csv",header=TRUE)
 vac<-vac.RAW
 
 ##########################################################################-
@@ -36,10 +38,7 @@ vac<-vac.RAW
 ##########################################################################-
 
 #Sample variable in vac.data is reading as factor, which doesn't sort properly.  
-#Change to numeric, use 9999 to indicate empty sample (no physical vial to number).
-is.factor(vac$sample) #data type is factor
-vac$sample<-gsub('--',9999,vac$sample) #Don't use quotes, b/c that means text string
-vac$sample<-as.numeric(vac$sample)
+is.numeric(vac$sample) #data type is numeric, so it should sort now
 
 
 #I know that the dates of floral data do not always match the dates of vac data (multiple sampling days)
@@ -48,23 +47,21 @@ vac$sample<-as.numeric(vac$sample)
 #in the middle of a phenological event.
 #Use Lubridate package to convert dates to week of year.
 library(lubridate)
-#format original dates in a new column in ISO format.
-floral$date<-mdy(floral$date)
-vac$date<-mdy(vac$date)
-#specify origin of dates (useful after merging)
-floral$floral_date<-floral$date
-floral$date<-NULL
-vac$vac_date<-vac$date
-vac$date<-NULL
+# #format original dates in a new column in ISO format.
+# floral$date<-mdy(floral$date)
+# vac$date_vac<-mdy(vac$date_vac)
+# #specify origin of dates (useful after merging)
+# floral$floral_date<-floral$date
+# floral$date<-NULL
 #Get day of year (1-365)
-floral$DOY<-yday(floral$floral_date) 
+floral$DOY<-yday(floral$date_floral) 
 
 
 #Lubridate weeks start on the first day of the year. 
 #ISOweek week one starts on the first sunday of the year.
 library(ISOweek)
-floral$week<-isoweek(floral$floral_date)
-vac$week<-isoweek(vac$vac_date)
+floral$week<-isoweek(floral$date_floral)
+vac$week<-isoweek(vac$date_vac)
 
 #Create numerical site code to order data in charts
 floral$sitenum<-floral$site
@@ -74,17 +71,14 @@ floral$sitenum<-gsub('SWMREC','3',floral$sitenum)
 #Defines 'site' as factor whose order in df can determine chart order
 floral$site<-factor(floral$site, levels=unique(floral$site))
 
-#Fixed CAPS inconsistency in the 'species' column.
-#Changes column from factor to character, which causes problems.
-#change it back with as.factor after each line.
-floral$species<-gsub('control','CONTROL',floral$species)
-as.factor(floral$species)
-floral$species<-gsub('mowed','MOWED',floral$species)
-as.factor(floral$species)
-vac$species<-gsub('control','CONTROL',vac$species)
-as.factor(vac$species)
-vac$species<-gsub('mowed','MOWED',vac$species)
-as.factor(vac$species)
+# #Fixed CAPS inconsistency in the 'species' column.
+# #Changes column from factor to character, which causes problems.
+# #change it back with as.factor after each line.
+# floral$species<-gsub('control','CONTROL',floral$species)
+# as.factor(floral$species)
+# floral$species<-gsub('mowed','MOWED',floral$species)
+# as.factor(floral$species)
+
 
 
 #Concatenate week, site, block, species in both 'floral' and 'vac' to create a single variable that uniquely identifies each sample.
@@ -100,17 +94,16 @@ vac$sample_ident_vac<-paste(vac$week,vac$site,vac$species,vac$block,sep='_')
 #26SWMREC2COLA5
 #30CRC2CONTROL
 #37SWMREC4CONTROL
-#38NWMHRC1HEST
 #28_CRC_4_MOWED
 vac<-vac[which(vac$sample !="127" & vac$sample !="105" &
                  vac$sample !="78" & vac$sample !="79" &
                  vac$sample !="768" & vac$sample !="773" &
                  vac$sample !="409" & vac$sample !="412" &
-                 vac$sample !="1567" & vac$sample !="1569" &
                  vac$sample !="727" & vac$sample !="725"),]
 
 #8/4/15 4 CESTM (32SWMREC4CESTM) was accidentally measured twice. Delete second measurement
-floral<-floral[which(floral$record !="1139"),]
+#Not sure what this was, but it needs to be checked again,
+# floral<-floral[which(floral$record !="1139"),]
 
 
 ##########################################################################-
@@ -134,9 +127,9 @@ names(mpeakref)[names(mpeakref) == 'value']<-'peak'
 floral<-merge(floral,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-floral.peak<-subset(floral, peak == "y")#total=1673
+floral.peak<-subset(floral, peak == "y")#total=1673 , now 1687
 #Outgroup of subset by peakbloom from mpeakref
-floral.notpeak<-subset(floral, peak == "n")#Total=720
+floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 723
 
 #Merge mpeakref into vac. Subset to only peak bloom observations.
 
@@ -144,9 +137,9 @@ floral.notpeak<-subset(floral, peak == "n")#Total=720
 vac<-merge(vac,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-vac.peak<-subset(vac, peak == "y")#total=1595
+vac.peak<-subset(vac, peak == "y")#total=1595 , now 1643
 #Outgroup of subset by peakbloom from mpeakref
-vac.notpeak<-subset(vac, peak == "n")#total=45
+vac.notpeak<-subset(vac, peak == "n")#total=45 , now 68
 
 
 #### MERGE VAC and FLORAL DATA FRAMES #### ---- 
@@ -164,12 +157,12 @@ all.data2<-merge(vac.peak,floral.peak,by=c('site','week','species','block'),all.
 ## Find lines that failed to merge ##
 {
 #subset NAs from all.data and all.data2 to for easier to deal with "error lists"
-vac.missing<-subset(all.data, is.na(vac_date))
+vac.missing<-subset(all.data, is.na(date_vac))
 #Subset columns for simpler viewing
 # library(dplyr)
 # vac.missing<- select(vac.errors, record.x, floral_date, site, week, species, block, sample_ident_floral, sample_ident_vac)
 
-floral.missing<-subset(all.data2, is.na(floral_date))
+floral.missing<-subset(all.data2, is.na(date_floral))
 #Subset columns for simpler viewing
 # library(dplyr)
 # floral.missing<- select(floral.errors, record.x, vac_date, site, week, species, block, sample_ident_vac, sample_ident_floral)
@@ -194,10 +187,12 @@ floral.missing<-subset(all.data2, is.na(floral_date))
 
 ## Save the evidence as CSV for more convenient sleuthing ##
 {#Export Data
-write.csv(vac.missing, 'vac.missing.csv')
-write.csv(floral.missing, 'floral.missing.csv')
-write.csv(vac.duplicates, 'vac.duplicates.csv')
-write.csv(floral.duplicates, 'floral.duplicates.csv')
+write.csv(vac.missing, 'vac.missing.2.7.2017.csv')
+write.csv(floral.missing, 'floral.missing.2.7.2017.csv')
+write.csv(vac.duplicates, 'vac.duplicates.2.7.2017.csv')
+write.csv(floral.duplicates, 'floral.duplicates.2.7.2017.csv')
+write.csv(vac,'cleaned vac data.2.7.2017.csv')
+write.csv(floral,'cleaned floral data.2.7.2017.csv')
 }
 
 ##########################################################################-
