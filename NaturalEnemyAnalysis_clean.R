@@ -25,12 +25,16 @@ area$site<-NULL
 
 #Bring in floral data (complete version)
 # floral.RAW<-read.csv("2015_floral_Data_1.30.2017.csv",header=TRUE)
-floral.RAW<-read.csv("2015_floral_Data_1.30.2017_Refined.csv",header=TRUE)
+# floral.RAW<-read.csv("2015_floral_Data_1.30.2017_Refined.csv",header=TRUE)
+floral.RAW<-read.csv("2015_floral_Data_1.30.2017_Refined2.csv",header=TRUE)
+
 floral<-floral.RAW
 
 #Bring in Vacuum data
 # vac.RAW<-read.csv("Vac_Data_2015_JK_03182016.csv",header=TRUE)
-vac.RAW<-read.csv("Vac_Data_2015_DG_2-7-2017 Refined.csv",header=TRUE)
+# vac.RAW<-read.csv("Vac_Data_2015_DG_2-7-2017 Refined.csv",header=TRUE)
+vac.RAW<-read.csv("Vac_Data_2015_DG_2-7-2017 Refined2.csv",header=TRUE)
+
 vac<-vac.RAW
 
 ##########################################################################-
@@ -101,9 +105,111 @@ vac<-vac[which(vac$sample !="127" & vac$sample !="105" &
                  vac$sample !="409" & vac$sample !="412" &
                  vac$sample !="727" & vac$sample !="725"),]
 
-#8/4/15 4 CESTM (32SWMREC4CESTM) was accidentally measured twice. Delete second measurement
-#Not sure what this was, but it needs to be checked again,
-# floral<-floral[which(floral$record !="1139"),]
+#7/3/15 4 CARO2 (27NWMHRC4CARO2) has two vac samples (#1175, #1673). 
+#The second (#1673) is correct. Delete #1175.
+#7/30/15 3 LICY (31SWMREC3LICY, #326) has no floral measurements. Delete it.
+vac<-vac[which(vac$sample !="1175" & vac$sample !="326"),]
+
+######NOTE: If I ever want to compute a tally about floral data independent
+#### of vac data, I will want to NOT remove the floral samples below.
+
+####The following floral observations match the 'vac' data duplicates removed above.
+{
+  # record_floral,	sample_ident_floral
+  # 517	  28_CRC_CONTROL_4
+  # 518	  28_CRC_MOWED_4
+  # 881	  30_CRC_CONTROL_2
+  # 880	  30_CRC_MOWED_2
+  # 252	  25_SWMREC_CONTROL_3
+  # 267	  25_SWMREC_MOWED_3
+  # 325	  26_SWMREC_COLA5_2
+  # 2142	37_SWMREC_CONTROL_4
+  # 2141	37_SWMREC_MOWED_4
+}
+#Remove (9 lines)
+{
+  floral<-floral[which(floral$record !="517" & floral$record !="267" & 
+                         floral$record !="518" & floral$record !="325" & 
+                         floral$record !="881" & floral$record !="2142" & 
+                         floral$record !="880" & floral$record !="2141" & 
+                         floral$record !="252"),]
+}
+
+####The following floral observations have duplicate lines.
+{
+# record_floral,	sample_ident_floral
+# 161   24_NWMHRC_POSI2_1
+# 962.1 31_SWMREC_HEST_2
+# 1139  32_SWMREC_CESTM_4 ---> line is labeled as block 2, which is wrong
+# 1736  34_NWMHRC_HYPR_1
+}
+#Remove extra lines (4 lines)
+{
+floral<-floral[which(floral$record !="161" & floral$record !="1736" & 
+                       floral$record !="962.1" & floral$record !="1139"),]
+}
+
+####The following floral observations were never vac sampled
+{
+# record_floral,	sample_ident_floral
+#   31  	23_CRC_HERI_2
+#   42  	23_CRC_POSI2_3
+#   33  	23_CRC_POSI2_4
+#   43  	23_CRC_SEOB2_4
+#   102 	24_CRC_HERI_1
+#   90	  24_CRC_SEOB2_1
+#   98	  24_CRC_POSI2_3
+#   95  	24_CRC_COLA5_4
+#   96  	24_CRC_POSI2_4
+#   189 	25_CRC_HERI_1
+#   864 	30_CRC_OEFR_3
+#   156	  24_NWMHRC_SEOB2_2
+#   736 	29_NWMHRC_CARO2_3
+#   1956	35_NWMHRC_ASVE_2
+#   1921	35_NWMHRC_CONTROL_2
+#   1922	35_NWMHRC_MOWED_2
+#   1955	35_NWMHRC_OLRI_2
+#   1953	35_NWMHRC_PYPI_2
+#   15	  22_SWMREC_MOWED_2
+#   48	  23_SWMREC_SEOB2_1
+#   55	  23_SWMREC_PEHI_2
+#   65	  23_SWMREC_POSI2_4
+#   70	  23_SWMREC_SEOB2_4
+#   200	  25_SWMREC_ROCA4_1
+#   949	  31_SWMREC_SONE_1
+#   979 	31_SWMREC_SONE_3
+ }
+#Remove (26 lines)
+{
+  floral<-floral[which(floral$record !="31" & floral$record !="1956" & 
+                         floral$record !="42" & floral$record !="1921" & 
+                         floral$record !="33" & floral$record !="1922" & 
+                         floral$record !="43" & floral$record !="1955" & 
+                         floral$record !="102" & floral$record !="1953" & 
+                         floral$record !="90" & floral$record !="15" & 
+                         floral$record !="98" & floral$record !="48" & 
+                         floral$record !="95" & floral$record !="55" & 
+                         floral$record !="96" & floral$record !="65" & 
+                         floral$record !="189" & floral$record !="70" & 
+                         floral$record !="864" & floral$record !="200" & 
+                         floral$record !="156" & floral$record !="949" & 
+                         floral$record !="979" & floral$record !="736"),]
+}
+
+####The following floral observations are missing vac samples, but the cause is still unknown
+#as of 2.8.2017. **Not removing these yet**, but keeping here for reference.
+{
+  # record_floral,	sample_ident_floral
+  # 89  	24_CRC_HERI_4
+  # 188 	25_CRC_HERI_2
+  # 1856	35_CRC_POAR7_2
+  # 155	  24_NWMHRC_LUPE3_1
+  # 580	  28_NWMHRC_ROCA4_1
+  # 592	  28_NWMHRC_HERI_2
+  # 1213	31_NWMHRC_VEST_2
+  # 2225	38_SWMREC_SOSP2_4
+  
+} # (8 lines)
 
 
 ##########################################################################-
@@ -127,9 +233,9 @@ names(mpeakref)[names(mpeakref) == 'value']<-'peak'
 floral<-merge(floral,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-floral.peak<-subset(floral, peak == "y")#total=1673 , now 1687
+floral.peak<-subset(floral, peak == "y")#total=1673 , now 1649
 #Outgroup of subset by peakbloom from mpeakref
-floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 723
+floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 722
 
 #Merge mpeakref into vac. Subset to only peak bloom observations.
 
@@ -137,19 +243,23 @@ floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 723
 vac<-merge(vac,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-vac.peak<-subset(vac, peak == "y")#total=1595 , now 1643
+vac.peak<-subset(vac, peak == "y")#total=1595 , now 1641
 #Outgroup of subset by peakbloom from mpeakref
 vac.notpeak<-subset(vac, peak == "n")#total=45 , now 68
 
 
 #### MERGE VAC and FLORAL DATA FRAMES #### ---- 
-#Failed merges useful for data cleaning
-
-#Merge vac.peak into floral.peak
-all.data<-merge(floral.peak,vac.peak,by=c('site','week','species','block'),all.x=TRUE)
+### Merges working properly as of 2-8-2017. 
+# floral<--vac == 8 lines unmatched (same as known list of missing), no duplicates
+# vac<--floral == 0 unmatched or duplicates
 
 #merge peak.floral.clean into vac.peak
-all.data2<-merge(vac.peak,floral.peak,by=c('site','week','species','block'),all.x=TRUE)
+all.data<-merge(vac.peak,floral.peak,by=c('site','week','species','block'),all.x=TRUE)
+
+#Merge vac.peak into floral.peak
+all.data2<-merge(floral.peak,vac.peak,by=c('site','week','species','block'),all.x=TRUE)
+
+
 
 
 #### CLEANING: Finding floral and vac merge problems #### ----
@@ -157,15 +267,8 @@ all.data2<-merge(vac.peak,floral.peak,by=c('site','week','species','block'),all.
 ## Find lines that failed to merge ##
 {
 #subset NAs from all.data and all.data2 to for easier to deal with "error lists"
-vac.missing<-subset(all.data, is.na(date_vac))
-#Subset columns for simpler viewing
-# library(dplyr)
-# vac.missing<- select(vac.errors, record.x, floral_date, site, week, species, block, sample_ident_floral, sample_ident_vac)
-
-floral.missing<-subset(all.data2, is.na(date_floral))
-#Subset columns for simpler viewing
-# library(dplyr)
-# floral.missing<- select(floral.errors, record.x, vac_date, site, week, species, block, sample_ident_vac, sample_ident_floral)
+floral.missing<-subset(all.data, is.na(date_vac))
+vac.missing<-subset(all.data2, is.na(date_floral))
 }
 
 ## Identifying duplicates in VAC data ##
@@ -237,9 +340,9 @@ all.data$hemiptera_ne<-rowSums(all.data[,c("anthocoridae","nabidae","reduviidae"
 ##########################################################################-
 #### SUMMARIZING CONTROLS BY WEEK #### ----
 ##########################################################################-
-#Remove observations without vac data pair (REMOVE ONCE DATA IS BETTER CLEANED)
-all.data<-subset(all.data, !is.na(vac_date))
-# all.data2<-subset(all.data2, !is.na(floral_date))
+## Remove observations without vac data pair (REMOVE ONCE DATA IS BETTER CLEANED)
+# all.data<-subset(all.data, !is.na(date_vac))
+# all.data2<-subset(all.data2, !is.na(date_floral))
 
 #Remove controls from data
 all.nocontrols<-all.data[which(all.data$species !="MOWED" & all.data$species !="CONTROL"),]
