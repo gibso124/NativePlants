@@ -2,23 +2,23 @@
 #### BRING IN DATA #### ----
 ##########################################################################-
 
-#Bring in floral area reference
-{
-#Bring in floral area
-area<-read.csv("floral_area.csv",header=TRUE)
-
-#Check on data quality
-summary(area)
-
-#Getting rid of the 'floral.area' mean area calculated in Excel
-area$mean_area<-NULL
-
-#Calculate new mean area in 'floral.area'
-area$avgarea<-rowMeans(area[,5:9])
-
-#Remove site from floral.area
-area$site<-NULL
-}
+# #Bring in floral area reference
+# {
+# #Bring in floral area
+# area<-read.csv("floral_area.csv",header=TRUE)
+# 
+# #Check on data quality
+# summary(area)
+# 
+# #Getting rid of the 'floral.area' mean area calculated in Excel
+# area$mean_area<-NULL
+# 
+# #Calculate new mean area in 'floral.area'
+# area$avgarea<-rowMeans(area[,5:9])
+# 
+# #Remove site from floral.area
+# area$site<-NULL
+# }
 
 #Bring in primary data
 #*******************
@@ -217,7 +217,8 @@ floral<-floral[which(floral$record !="161" & floral$record !="1736" &
 ##########################################################################-
 
 #Bring in reference matrix
-peakref<-read.csv("peak_reference_matrix2015.csv")
+peakref.old<-read.csv("peak_reference_matrix2015.csv")
+peakref<-read.csv("peak_reference_matrix2015_updated_2.9.2017.csv")
 
 #melt the matrix, rename columns
 library("reshape")
@@ -233,9 +234,9 @@ names(mpeakref)[names(mpeakref) == 'value']<-'peak'
 floral<-merge(floral,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-floral.peak<-subset(floral, peak == "y")#total=1673 , now 1649
+floral.peak<-subset(floral, peak == "y")#total=1673 , now 1642
 #Outgroup of subset by peakbloom from mpeakref
-floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 722
+floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 729
 
 #Merge mpeakref into vac. Subset to only peak bloom observations.
 
@@ -243,9 +244,9 @@ floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 722
 vac<-merge(vac,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-vac.peak<-subset(vac, peak == "y")#total=1595 , now 1641
+vac.peak<-subset(vac, peak == "y")#total=1595 , now 1634
 #Outgroup of subset by peakbloom from mpeakref
-vac.notpeak<-subset(vac, peak == "n")#total=45 , now 68
+vac.notpeak<-subset(vac, peak == "n")#total=45 , now 75
 
 
 #### MERGE VAC and FLORAL DATA FRAMES #### ---- 
