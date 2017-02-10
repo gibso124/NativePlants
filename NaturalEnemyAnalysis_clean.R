@@ -400,6 +400,42 @@ all.with.controls<-merge(all.nocontrols,controls.summary,by=c('site','week','sit
 
 
 
+
+#### ####
+#### T-Tests #### ----
+
+# independent 2-group t-test
+# Subsetting species lists and control lists will be the hard part here
+# I need to find a good way to do this that isn't calling everything individually every time
+t.test(y1,y2) # where y1 and y2 are numeric
+# You can use the var.equal = TRUE option to specify equal variances and a pooled variance estimate. 
+# You can use the alternative="less" or alternative="greater" option to specify a one tailed test.
+
+
+
+# subset for smaller dataset that my laptop can handle
+{
+  ttests<-subset(all.data, site == "SWMREC")
+  library(plyr)
+  ttests <- subset(ttests, select = c(1,2,3,4,7,77,79))
+  ttests<-subset(ttests, species == "ACMI2" | species == 'AMCA6' |
+                           species == "POSI2" | species == 'HEST' |
+                          species == "MOFI" | species == 'PYVI' |
+                           species == "SOSP2" | species == 'HIGR3' |
+                          species == "MOWED")
+  #Export Data
+  write.csv(ttests, 'ttests.csv')
+}
+
+# subset for ACMI2 and its controls
+{
+# hmm, I might be able to subset by week and species, so I get a list of one species and its controls.
+# With any luck I'll be able to run the test without further splitting the file.
+ACMI2<-subset(ttests, species == "ACMI2" | species == 'MOWED')
+ACMI2<-subset(ACMI2, week == 25 | week == 26 | week == 27)
+
+}
+
 #### Bulk Package Loading #### ----
 
 ## The warning "the following objects are masked" means that two packages loaded have
