@@ -110,7 +110,12 @@ vac<-vac[which(vac$sample !="127" & vac$sample !="105" &
 #7/30/15 3 LICY (31SWMREC3LICY, #326) has no floral measurements. Delete it.
 vac<-vac[which(vac$sample !="1175" & vac$sample !="326"),]
 
-######NOTE: If I ever want to compute a tally about floral data independent
+###### WARNING: PEHI and COLA5 samples from CRC 6-23-2015 have floral sample lines with vac times,
+###### but no floral measurements were taken.  They will need to be removed when analyzing vac data
+###### with plant traits. Easiest way is through changing 'peakref'. 
+###### Change CRC week 26:  'y' --->> 'n'
+
+###### NOTE: If I ever want to compute a tally about floral data independent
 #### of vac data, I will want to NOT remove the floral samples below.
 
 ####The following floral observations match the 'vac' data duplicates removed above.
@@ -394,6 +399,28 @@ all.with.controls<-merge(all.nocontrols,controls.summary,by=c('site','week','sit
 
 
 
+
+#### Bulk Package Loading #### ----
+
+## The warning "the following objects are masked" means that two packages loaded have
+## identical commands, and R will use the command in the package loaded LAST.
+## To specify which package for R to use, use the double colon operator(::)
+#     package::function
+#     plyr::summarise
+## simply adding 'library(package)' above the current command DOES NOT fix this!
+## To see the order of package loading, type 'search()'
+
+library(lubridate)
+library(ISOweek)
+library(reshape)
+library(plyr)
+
+#Charts Code Packages
+library(ggplot2)
+library(plyr)
+library(reshape)
+library(viridis)
+library(dplyr) #for the 'rbind()' command. 'rank()' is base R.
 
 #### Miscellaneous Reference code #### ----
 ##########################################################################-

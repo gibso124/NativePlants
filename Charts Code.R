@@ -250,7 +250,7 @@ all.with.controls$log_total_ne<-log10((all.with.controls$total_ne)+1)
 }
 
 library(ggplot2)
-histogram<-ggplot(all.with.controls, aes(x=log_total_ne))+ 
+histogram<-ggplot(all.with.controls, aes(x=total_ne))+ 
   # geom_histogram(binwidth = 3)+
   geom_histogram(bins = 30)+
   facet_wrap(~site,ncol=1, scales = 'free')#3 plots side by side (by site) in single object
@@ -284,7 +284,7 @@ barplot.1
 
 #NMDs Code line s690-824 in Lampyrid code on GitHub ####
 
-#### Summarizing Data #####
+#### Summarizing Data ##### ----
 
 #Summarize: Means and SE of taxa (orders) and controls by species
 {library(plyr)
