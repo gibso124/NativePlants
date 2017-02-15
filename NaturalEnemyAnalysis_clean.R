@@ -110,6 +110,11 @@ vac<-vac[which(vac$sample !="127" & vac$sample !="105" &
 #7/30/15 3 LICY (31SWMREC3LICY, #326) has no floral measurements. Delete it.
 vac<-vac[which(vac$sample !="1175" & vac$sample !="326"),]
 
+#SILA3 is actually SITE. Throw out all SILA3 samples
+vac<-vac[which(vac$species !="SILA3"),] # Removes 5 lines
+floral<-floral[which(floral$species !="SILA3"),] #Removes 7 lines
+
+
 ###### WARNING: PEHI and COLA5 samples from CRC 6-23-2015 have floral sample lines with vac times,
 ###### but no floral measurements were taken.  They will need to be removed when analyzing vac data
 ###### with plant traits. Easiest way is through changing 'peakref'. 
@@ -222,7 +227,7 @@ floral<-floral[which(floral$record !="161" & floral$record !="1736" &
 ##########################################################################-
 
 #Bring in reference matrix
-peakref.old<-read.csv("peak_reference_matrix2015.csv")
+# peakref.old<-read.csv("peak_reference_matrix2015.csv")
 peakref<-read.csv("peak_reference_matrix2015_updated_2.9.2017.csv")
 
 #melt the matrix, rename columns
@@ -239,9 +244,9 @@ names(mpeakref)[names(mpeakref) == 'value']<-'peak'
 floral<-merge(floral,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-floral.peak<-subset(floral, peak == "y")#total=1673 , now 1642
+floral.peak<-subset(floral, peak == "y")#total=1637 #These last updated after removing all SILA3 samples
 #Outgroup of subset by peakbloom from mpeakref
-floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 729
+floral.notpeak<-subset(floral, peak == "n")#Total=727
 
 #Merge mpeakref into vac. Subset to only peak bloom observations.
 
@@ -249,10 +254,9 @@ floral.notpeak<-subset(floral, peak == "n")#Total=720 , now 729
 vac<-merge(vac,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-vac.peak<-subset(vac, peak == "y")#total=1595 , now 1634
+vac.peak<-subset(vac, peak == "y")#total=1629
 #Outgroup of subset by peakbloom from mpeakref
-vac.notpeak<-subset(vac, peak == "n")#total=45 , now 75
-
+vac.notpeak<-subset(vac, peak == "n")#total=75
 
 #### MERGE VAC and FLORAL DATA FRAMES #### ---- 
 ### Merges working properly as of 2-8-2017. 
@@ -262,8 +266,8 @@ vac.notpeak<-subset(vac, peak == "n")#total=45 , now 75
 #merge peak.floral.clean into vac.peak
 all.data<-merge(vac.peak,floral.peak,by=c('site','week','species','block'),all.x=TRUE)
 
-#Merge vac.peak into floral.peak
-all.data2<-merge(floral.peak,vac.peak,by=c('site','week','species','block'),all.x=TRUE)
+# #Merge vac.peak into floral.peak
+# all.data2<-merge(floral.peak,vac.peak,by=c('site','week','species','block'),all.x=TRUE)
 
 
 
