@@ -405,18 +405,28 @@ all.with.controls<-merge(all.nocontrols,controls.summary,by=c('site','week','sit
 
 
 
-#### ####
 #### T-Tests #### ----
 
-# independent 2-group t-test
-# Subsetting species lists and control lists will be the hard part here
-# I need to find a good way to do this that isn't calling everything individually every time
-t.test(y1,y2) # where y1 and y2 are numeric
-# You can use the var.equal = TRUE option to specify equal variances and a pooled variance estimate. 
+# Independent 2-group t-test of species mean~mowed mean
+#Base code:
+t.test(x,y) # where x and y are numeric
+# R defaults to running a Welch's t-test.
+# You can use the "var.equal = TRUE" argument to specify equal variances and a pooled variance estimate. 
 # You can use the alternative="less" or alternative="greater" option to specify a one tailed test.
+# " alternative = 'greater' " is the alternative hypothesis that x has a larger mean than y 
+## e.g. SPECIES > mowed
+# Only run t-tests on species where mean is above mowed control.
 
 
+#Subset all.data into sites for t-tests
+{
+  SWMREC.t<-subset(all.data, site == "SWMREC")
+  CRC.t<-subset(all.data, site == "CRC")
+  NWMHRC.t<-subset(all.data, site == "NWMHRC")
+}
 
+# EXPERIMENTATION
+{
 # subset for smaller dataset that my laptop can handle
 {
   ttests<-subset(all.data, site == "SWMREC")
@@ -431,15 +441,857 @@ t.test(y1,y2) # where y1 and y2 are numeric
   write.csv(ttests, 'ttests.csv')
 }
 
-# subset for ACMI2 and its controls
-{
+#Import ttests.csv
+ttests<-read.csv("ttests.csv",header=TRUE)
+ttests$total_ne<-as.numeric(ttests$total_ne)
+
+
 # hmm, I might be able to subset by week and species, so I get a list of one species and its controls.
 # With any luck I'll be able to run the test without further splitting the file.
-ACMI2<-subset(ttests, species == "ACMI2" | species == 'MOWED')
-ACMI2<-subset(ACMI2, week == 25 | week == 26 | week == 27)
+# ACMI2<-subset(ttests, species == "ACMI2" | species == 'MOWED')
+ACMI2<-subset(ttests, species == 'ACMI2')
+ACMI2mowed<-subset(ttests, week == 25 & species == 'MOWED'| 
+                           week == 26 & species == 'MOWED'| 
+                           week == 27 & species == 'MOWED')
+
+#Run T-test
+t.test(ACMI2$total_ne,ACMI2mowed$total_ne)
+
+#Run 1-tailed T-test
+t.test(ACMI2$total_ne,ACMI2mowed$total_ne, alternative = 'greater')
+
+# Run 1-tailed T-test
+t.test(subset(SWMREC.t$total_ne, 
+                SWMREC.t$species == 'SPECIES'),
+       subset(SWMREC.t$total_ne, 
+                SWMREC.t$week == 00 & SWMREC.t$species == 'MOWED'| 
+                SWMREC.t$week == 00 & SWMREC.t$species == 'MOWED'| 
+                SWMREC.t$week == 00 & SWMREC.t$species == 'MOWED'),
+       alternative = 'greater') 
+}
+
+## SWMREC T-TESTS ####-
+{
+  # SPECIES (TEMPLATE)
+  {
+    t.test(subset(SWMREC.t$total_ne, 
+                  SWMREC.t$species == 'SPECIES'),
+           subset(SWMREC.t$total_ne, 
+                    SWMREC.t$week ==  & SWMREC.t$species == 'MOWED'| 
+                    SWMREC.t$week ==  & SWMREC.t$species == 'MOWED'| 
+                    SWMREC.t$week ==  & SWMREC.t$species == 'MOWED'),
+           alternative = 'greater') 
+  }
+  
+  # ACMI2
+  {
+    t.test(subset(SWMREC.t$total_ne, 
+                  SWMREC.t$species == 'ACMI2'),
+           subset(SWMREC.t$total_ne, 
+                  SWMREC.t$week == 25 & SWMREC.t$species == 'MOWED'| 
+                    SWMREC.t$week == 26 & SWMREC.t$species == 'MOWED'| 
+                    SWMREC.t$week == 27 & SWMREC.t$species == 'MOWED'),
+           alternative = 'greater') 
+  }
+  
+  # CEAM
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'CEAM'),
+          subset(SWMREC.t$total_ne, 
+                 # SWMREC.t$week == 00 & SWMREC.t$species == 'MOWED'| 
+                 #   SWMREC.t$week == 00 & SWMREC.t$species == 'MOWED'| 
+                 SWMREC.t$week == 27 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # COLA5
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'COLA5'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 24 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 25 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 26 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # COTR4
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'COTR4'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 33 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 34 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 35 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # DAFR6
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'DAFR6'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 30 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 31 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 32 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # ERYU
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'ERYU'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 32 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 33 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 34 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # HEOC2
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'HEOC2'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 33 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 34 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 35 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # HEST
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'HEST'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 34 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 35 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 36 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # LOCO6
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'LOCO6'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 25 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 26 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 27 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # MOFI
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'MOFI'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 29 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 30 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 31 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # MOPU
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'MOPU'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 32 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 33 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 34 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # OLRI
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'OLRI'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 35 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 36 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 37 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # POSI2
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'POSI2'),
+          subset(SWMREC.t$total_ne, 
+                 # SWMREC.t$week == 00 & SWMREC.t$species == 'MOWED'| 
+                 SWMREC.t$week == 22 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 23 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # PYPI
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'PYPI'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 32 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 33 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 34 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # PYVI
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'PYVI'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 30 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 31 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 32 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # RAPI
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'RAPI'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 30 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 31 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 32 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SIIN2
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'SIIN2'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 34 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 35 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 36 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SOJU
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'SOJU'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 33 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 34 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 35 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SONE
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'SONE'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 30 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 31 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 32 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SOSP2
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'SOSP2'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 38 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 39 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 40 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SYOO
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'SYOO'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 38 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 39 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 40 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SYSE2
+  {t.test(subset(SWMREC.t$total_ne, 
+                 SWMREC.t$species == 'SYSE2'),
+          subset(SWMREC.t$total_ne, 
+                 SWMREC.t$week == 36 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 37 & SWMREC.t$species == 'MOWED'| 
+                   SWMREC.t$week == 38 & SWMREC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+}
+
+## CRC T-TESTS ####-
+{
+# SPECIES (TEMPLATE)
+{t.test(subset(CRC.t$total_ne, 
+               CRC.t$species == 'SPECIES'),
+        subset(CRC.t$total_ne, 
+               CRC.t$week ==  & CRC.t$species == 'MOWED'| 
+               CRC.t$week ==  & CRC.t$species == 'MOWED'| 
+               CRC.t$week ==  & CRC.t$species == 'MOWED'),
+        alternative = 'greater') 
+}
+
+  # ACMI2
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'ACMI2'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 26 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 27 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 28 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # ASVE
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'ASVE'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 32 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 33 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 34 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # CESTM
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'CESTM'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 33 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 34 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 35 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # COLA5
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'COLA5'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 25 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 26 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 27 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # COTR4
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'COTR4'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 34 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 35 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 36 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # DAFR6
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'DAFR6'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 33 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 34 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 35 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # ECPU
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'ECPU'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 33 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 34 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 35 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # ERYU
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'ERYU'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 33 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 34 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 35 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # HEOC2
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'HEOC2'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 34 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 35 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 36 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # HEST
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'HEST'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 34 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 35 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 36 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # LOCO6
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'LOCO6'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 28 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 29 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 30 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # MOFI
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'MOFI'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 29 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 30 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 31 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # MOPU
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'MOPU'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 31 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 32 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 33 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # OLRI
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'OLRI'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 35 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 36 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 37 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # POSI2
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'POSI2'),
+          subset(CRC.t$total_ne, 
+                 # CRC.t$week == 00 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 23 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 24 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # PYVI
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'PYVI'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 30 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 31 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 32 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # RAPI
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'RAPI'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 31 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 32 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 33 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # RUHI2
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'RUHI2'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 30 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 31 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 32 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SIIN2
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'SIIN2'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 34 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 35 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 36 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SOJU
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'SOJU'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 32 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 33 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 34 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SONE
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'SONE'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 30 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 31 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 32 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+
+  # SOSP2
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'SOSP2'),
+          subset(CRC.t$total_ne, 
+                 # CRC.t$week == 00 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 38 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 39 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SYOO
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'SYOO'),
+          subset(CRC.t$total_ne, 
+                 # CRC.t$week == 00 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 38 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 39 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # SYSE2
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'SYSE2'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 37 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 38 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 39 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
+  
+  # VEST
+  {t.test(subset(CRC.t$total_ne, 
+                 CRC.t$species == 'VEST'),
+          subset(CRC.t$total_ne, 
+                 CRC.t$week == 29 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 30 & CRC.t$species == 'MOWED'| 
+                   CRC.t$week == 31 & CRC.t$species == 'MOWED'),
+          alternative = 'greater') 
+  }
 
 }
 
+## NWMHRC T-TESTS ####-
+{
+  # SPECIES (TEMPLATE)
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'SPECIES'),
+            subset(NWMHRC.t$total_ne, 
+                  NWMHRC.t$week == 00 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 00 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 00 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # ACMI2
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'ACMI2'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 28 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 29 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 30 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # CESTM
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'CESTM'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 31 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 32 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # CHANA2
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'CHANA2'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # COLA5
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'COLA5'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 26 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 27 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 28 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # COPA10
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'COPA10'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 32 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # COTR4
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'COTR4'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 38 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # DAFR6
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'DAFR6'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 29 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 30 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 31 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # DAPU5
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'DAPU5'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # ECPU
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'ECPU'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # ERYU
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'ERYU'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # HEOC2
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'HEOC2'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 38 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # HEST
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'HEST'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 38 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 39 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # HYPR
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'HYPR'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # LECA8
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'LECA8'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 38 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # LOCO6
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'LOCO6'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 26 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 27 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 28 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # MOFI
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'MOFI'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 31 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 32 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # MOPU
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'MOPU'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # OLRI
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'OLRI'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # PEHI
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'PEHI'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 25 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 26 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 27 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # PYPI
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'PYPI'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # PYVI
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'PYVI'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 32 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # RAPI
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'RAPI'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 32 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # RUHI2
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'RUHI2'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 32 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # SIIN2
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'SIIN2'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # SITE
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'SITE'),
+          subset(NWMHRC.t$total_ne, 
+                   # NWMHRC.t$week ==  & NWMHRC.t$species == 'MOWED'| 
+                   # NWMHRC.t$week ==  & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # SOJU
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'SOJU'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 36 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # SONE
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'SONE'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 31 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 32 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # SOSP2
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'SOSP2'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 39 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 40 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 41 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # SYOO
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'SYOO'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 39 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 40 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 41 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # SYSE2
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'SYSE2'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 37 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 38 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 39 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+  # VEST
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'VEST'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 30 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 31 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 32 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
+}
 #### Bulk Package Loading #### ----
 
 ## The warning "the following objects are masked" means that two packages loaded have
