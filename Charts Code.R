@@ -21,33 +21,108 @@
 
 #### Standard Bar Plot ####
 library(ggplot2)
-barplot.1<-ggplot(summarized.data, aes(x=reorder(species,DOYphenol), y=ne, fill=as.factor(species)))+ 
-  geom_bar(stat="identity", 
-           colour="black", 
+barplot.1<-ggplot(SWMREC, aes(x=reorder(scientific_name,DOYphenol), y=ne, fill=week))+
+  geom_bar(stat="identity",
+           colour="black",
            size=0.25)+
-  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se), 
-                     width=.4,
-                     size=0.25)+
+  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se),
+                width=.4,
+                size=0.25)+
   theme_bw(base_size = 15)+
+  theme(legend.position = c(0.2,.85))+
   guides(fill=FALSE)+
-  labs(title='\nMean Natural Enemies - with controls overlaid')+
+  labs(title='\nMean Natural Enemies')+
   theme(plot.title = element_text(face = 'bold',
                                   size = 20,
                                   hjust = 0.5),
         axis.title = element_text(face = 'plain',
                                   size = 15),
-        axis.text.x=element_text(angle=55, 
+        axis.text.x=element_text(angle=55,
                                  face='plain', #("plain", "italic", "bold", "bold.italic")
                                  size=7,    #(in pts)
                                  #vjust=0,   #(in [0, 1])
                                  hjust=1))+ #(in [0, 1])
   ylab("\nMean natural enemies / sample")+
   xlab("Plant species\n")+
+  #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  geom_point(data=SWMREC, aes(x=as.numeric(reorder(scientific_name,DOYphenol)), y=mowed_ne, group=1))+
+  facet_wrap(~site,ncol=1, scales = 'free')#3 plots side by side (by site) in single object
+barplot.1
+
+# for PP: Save as
+#### Standard Bar Plot - Single site, Full ####
+library(ggplot2)
+fullsite<-ggplot(SWMREC, aes(x=reorder(scientific_name,DOYphenol), y=ne))+
+
+  geom_bar(stat="identity",
+           colour="black",
+           size=0.25)+
+  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se),
+                     width=.4,
+                     size=0.25)+
+  theme_bw(base_size = 15)+
+  # guides(fill= 'colorbar')+
+  # theme(legend.position = c(0.2,.85))+
+  guides(fill=FALSE)+
+  # labs(title='\nMean Natural Enemies')+
+  theme(plot.title = element_text(face = 'bold',
+                                  size = 20,
+                                  hjust = 0.5),
+        axis.title = element_text(face = 'plain',
+                                  size = 20),
+        axis.text.x=element_text(angle=55,
+                                 face='plain', #("plain", "italic", "bold", "bold.italic")
+                                 size=11,    #(in pts)
+                                 #vjust=0,   #(in [0, 1])
+                                 hjust=1))+ #(in [0, 1])
+  ylab("\nMean natural enemies / sample")+
+  xlab("Plant species\n")+
 #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
-  geom_point(data=summarized.data, aes(x=as.numeric(reorder(species,DOYphenol)), y=controls_ne, group=1))+
+  geom_point(data=SWMREC, aes(x=as.numeric(reorder(scientific_name,DOYphenol)), y=mowed_ne, group=1))+
+  facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
+fullsite
+
+# for PP: Save as PNG, 1800 x 1100 pixels for single site
+
+#### Standard Bar Plot - Grouped Ne/herb for lab meeting ####
+library(ggplot2)
+barplot.1<-ggplot(N, aes(x=reorder(scientific_name,DOYphenol), y=stack, fill=class))+
+  # scale_fill_viridis(option = 'plasma', direction = -1)+
+  geom_bar(stat="identity",
+           position = 'dodge',
+           colour="black",
+           size=0.25)+
+  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se),
+                width=.4,
+                size=0.25)+
+  geom_errorbar(aes(ymin=-herb-herb.se, ymax=-herb+herb.se),
+                width=.4,
+                size=0.25)+
+  theme_bw(base_size = 15)+
+  # guides(fill= 'colorbar')+
+  # theme(legend.position = c(0.2,.85))+
+  guides(fill=FALSE)+
+  # labs(title='\nMean Natural Enemies')+
+  theme(plot.title = element_text(face = 'bold',
+                                  size = 20,
+                                  hjust = 0.5),
+        axis.title = element_text(face = 'plain',
+                                  size = 20),
+        axis.text.x=element_text(angle=55,
+                                 face='plain', #("plain", "italic", "bold", "bold.italic")
+                                 size=11,    #(in pts)
+                                 #vjust=0,   #(in [0, 1])
+                                 hjust=1))+ #(in [0, 1])
+  ylab("\nMean natural enemies / sample")+
+  xlab("Plant species\n")+
+  # ylim(-125, 100)+
+  #  geom_vline(xintercept=6.5, color='black',size=.25,linetype='solid')+ #Adds line at location on x-axis. n.0 centers on column, n.5 is b/w columns
+  geom_point(data=N, aes(x=as.numeric(reorder(scientific_name,DOYphenol)), y=mowed_ne, group=1))+
+  geom_point(data=N, aes(x=as.numeric(reorder(scientific_name,DOYphenol)), y=-mowed_herb, group=1, fill = 'cross'))+
   facet_wrap(~site,ncol=1, scales = 'free_y')#3 plots side by side (by site) in single object
 barplot.1
 
+# for PP: Save as PNG, 1800 x 1100 pixels for single, 
 #### Standard Bar Plot - Norm ####
 library(ggplot2)
 barplot.2<-ggplot(norm, aes(x=reorder(species,DOYphenol), y=mnorm_ne, fill=as.factor(species)))+ 
@@ -91,7 +166,7 @@ stacked.bar<- ggplot(mtaxa.ne, aes(reorder(species,DOYphenol), mean_ne, fill = o
                                  hjust=1))+ #(in [0, 1])
   ylab("Mean natural enemies / sample")+
   xlab("Plant species")+
-  facet_wrap(~ site,ncol=1)#3 plots side by side (by site) in single object
+  facet_wrap(~ site,ncol=1)#Plots side by side (by site) in single object
 stacked.bar
 
 ##Reshape data for stacked plot
@@ -115,14 +190,14 @@ library(viridis)
 library(ggplot2)
 # barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_ne, fill=as.factor(week)))+  #NE only
 # barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_herb, fill=as.factor(week)))+  #herb only
-barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_all, fill=as.factor(week)))+  #both ne and herb
+barplot.1<-ggplot(controls.summary, aes(x=as.factor(week), y=mowed_ne, fill=as.factor(week)))+  #both ne and herb
   scale_fill_viridis(discrete=TRUE, option = 'plasma', direction = -1)+
   geom_bar(stat="identity", 
            colour="black", 
            size=0.25)+
   # geom_errorbar(aes(ymin=mowed_ne-mowed_ne.se, ymax=mowed_ne+mowed_ne.se), 
   # geom_errorbar(aes(ymin=mowed_herb-mowed_herb.se, ymax=mowed_herb+mowed_herb.se),
-  geom_errorbar(aes(ymin=mowed_all-mowed_all.se, ymax=mowed_all+mowed_all.se),
+  geom_errorbar(aes(ymin=mowed_ne-mowed_ne.se, ymax=mowed_ne+mowed_ne.se),
                 width=.4,
                 size=0.25)+
   theme_bw(base_size = 15)+
