@@ -363,15 +363,15 @@ controls<-subset(all.data, species == "MOWED" | species == "CONTROL")
 #Concatenate week_site
 controls$week_site<-paste(controls$week,controls$site,sep='_')
 mowed<-subset(controls,species == "MOWED")
-weedy<-subset(controls,species == "CONTROL")
+# weedy<-subset(controls,species == "CONTROL")
 
 #Summarise controls
 #Summarise by week and site using ddply
 library("plyr")
-controls.summary<-ddply(controls, c('site', 'week','sitenum'),summarise,
-                    controls_ne=mean(total_ne),
-                    controls_herb=mean(total_herb),
-                    controls_all=mean(total_ne+total_herb))
+# controls.summary<-ddply(controls, c('site', 'week','sitenum'),summarise,
+#                     controls_ne=mean(total_ne),
+#                     controls_herb=mean(total_herb),
+#                     controls_all=mean(total_ne+total_herb))
 mowed.summary<-ddply(mowed, c('site', 'week','sitenum'),summarise,
                     mowed_ne=mean(total_ne),
                     mowed_ne.se=sd(total_ne)/sqrt(length(total_ne)),
@@ -381,23 +381,23 @@ mowed.summary<-ddply(mowed, c('site', 'week','sitenum'),summarise,
                     
                     mowed_all=mean(total_ne+total_herb),
                     mowed_all.se=sd(total_ne+total_herb)/sqrt(length(total_ne)))
-weedy.summary<-ddply(weedy, c('site', 'week','sitenum'),summarise,
-                    weedy_ne=mean(total_ne),
-                    weedy_herb=mean(total_herb),
-                    weedy_all=mean(total_ne+total_herb))
-controls.summary<-merge(controls.summary,mowed.summary,by=c('site','sitenum','week'),all.x=TRUE)
-controls.summary<-merge(controls.summary,weedy.summary,by=c('site','sitenum','week'),all.x=TRUE)
+# weedy.summary<-ddply(weedy, c('site', 'week','sitenum'),summarise,
+#                     weedy_ne=mean(total_ne),
+#                     weedy_herb=mean(total_herb),
+#                     weedy_all=mean(total_ne+total_herb))
+# controls.summary<-merge(controls.summary,mowed.summary,by=c('site','sitenum','week'),all.x=TRUE)
+# controls.summary<-merge(controls.summary,weedy.summary,by=c('site','sitenum','week'),all.x=TRUE)
 
 #Order sites. 
 #Defines 'site' as factor whose order in df can determine chart order
-controls.summary$site<-factor(controls.summary$site, levels=unique(controls.summary$site))
+mowed.summary$site<-factor(mowed.summary$site, levels=unique(mowed.summary$site))
 #Orders df as 1, 2, 3, (or NW, CRC, SW)
-controls.summary<-controls.summary[order(controls.summary$sitenum, 
-                                         controls.summary$week),]
+mowed.summary<-mowed.summary[order(mowed.summary$sitenum, 
+                                   mowed.summary$week),]
 
 
 #Merge control summary into all.nocontrols 
-all.with.controls<-merge(all.nocontrols,controls.summary,by=c('site','week','sitenum'),all.x=TRUE)
+all.with.controls<-merge(all.nocontrols,mowed.summary,by=c('site','week','sitenum'),all.x=TRUE)
 
 
 ##########################################################################-
