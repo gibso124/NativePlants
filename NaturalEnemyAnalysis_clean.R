@@ -981,6 +981,16 @@ t.test(subset(SWMREC.t$total_ne,
           alternative = 'greater')
   }
   
+  # ASVE
+  {t.test(subset(NWMHRC.t$total_ne, 
+                 NWMHRC.t$species == 'ASVE'),
+          subset(NWMHRC.t$total_ne, 
+                   NWMHRC.t$week == 33 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 34 & NWMHRC.t$species == 'MOWED'| 
+                   NWMHRC.t$week == 35 & NWMHRC.t$species == 'MOWED'),
+          alternative = 'greater')
+  }
+  
   # ACMI2
   {t.test(subset(NWMHRC.t$total_ne, 
                  NWMHRC.t$species == 'ACMI2'),
@@ -1221,7 +1231,7 @@ t.test(subset(SWMREC.t$total_ne,
           alternative = 'greater')
   }
   
-  # SITE
+  # SITE - Onlyu 1 sample, cannot test
   {t.test(subset(NWMHRC.t$total_ne, 
                  NWMHRC.t$species == 'SITE'),
           subset(NWMHRC.t$total_ne, 
