@@ -72,8 +72,9 @@ floral$sitenum<-floral$site
 floral$sitenum<-gsub('NWMHRC','1',floral$sitenum)
 floral$sitenum<-gsub('CRC','2',floral$sitenum)
 floral$sitenum<-gsub('SWMREC','3',floral$sitenum)
-#Defines 'site' as factor whose order in df can determine chart order
+#Defines 'site' and 'sitenum' as factors whose order in df can determine chart order
 floral$site<-factor(floral$site, levels=unique(floral$site))
+floral$sitenum<-factor(floral$sitenum, levels=unique(floral$sitenum))
 
 # #Fixed CAPS inconsistency in the 'species' column.
 # #Changes column from factor to character, which causes problems.
@@ -244,9 +245,9 @@ names(mpeakref)[names(mpeakref) == 'value']<-'peak'
 floral<-merge(floral,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-floral.peak<-subset(floral, peak == "y")#total=1637 #These last updated after removing all SILA3 samples
+floral.peak<-subset(floral, peak == "y")#total=1639 #These last updated after adding ASSY peak weeks 32,33 at CRC
 #Outgroup of subset by peakbloom from mpeakref
-floral.notpeak<-subset(floral, peak == "n")#Total=727
+floral.notpeak<-subset(floral, peak == "n")#Total=725
 
 #Merge mpeakref into vac. Subset to only peak bloom observations.
 
@@ -254,9 +255,9 @@ floral.notpeak<-subset(floral, peak == "n")#Total=727
 vac<-merge(vac,mpeakref,by=c('site','week','species'),all.x=TRUE)
 
 #Subset by peakbloom from mpeakref
-vac.peak<-subset(vac, peak == "y")#total=1629
+vac.peak<-subset(vac, peak == "y")#total=1631
 #Outgroup of subset by peakbloom from mpeakref
-vac.notpeak<-subset(vac, peak == "n")#total=75
+vac.notpeak<-subset(vac, peak == "n")#total=73
 
 #### MERGE VAC and FLORAL DATA FRAMES #### ---- 
 ### Merges working properly as of 2-8-2017. 
