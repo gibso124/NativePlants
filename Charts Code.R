@@ -286,72 +286,148 @@ barplot.1
 
 #### Summarizing Data ##### ----
 
-#Summarize: Means and SE of taxa (orders) and controls by species
-{library(plyr)
-summarized.data<-ddply(all.with.controls, c('site', 'species','sitenum'),summarise,
-                       arach=mean(arachnida), #NOTE: The destination var cannot have same name as source var.
-                       arach.se=sd(arachnida)/sqrt(length(arachnida)),
-                       
-                       dipt_ne=mean(diptera_ne),
-                       dipt_ne.se=sd(diptera_ne)/sqrt(length(diptera_ne)),
-                       
-                       neurop_ne=mean(neuroptera_ne),
-                       neurop_ne.se=sd(neuroptera_ne)/sqrt(length(neuroptera_ne)),
-                       
-                       coleop_ne=mean(coleoptera_ne),
-                       coleop_ne.se=sd(coleoptera_ne)/sqrt(length(coleoptera_ne)),
-                       
-                       hymenop_ne=mean(hymenoptera_ne),
-                       hymenop_ne.se=sd(hymenoptera_ne)/sqrt(length(hymenoptera_ne)),
-                       
-                       hemip_ne=mean(hemiptera_ne),
-                       hemip_ne.se=sd(hemiptera_ne)/sqrt(length(hemiptera_ne)),
-                       
-                       ne=mean(total_ne),
-                       ne.se=sd(total_ne)/sqrt(length(total_ne)),                      
-                      
-                       herb=mean(total_herb),
-                       herb.se=sd(total_herb)/sqrt(length(total_herb)),
-                       
-                       controls_ne=mean(controls_ne),
-                       controls_herb=mean(controls_herb),
-                       controls_all=mean(controls_all),
-                       mowed_ne=mean(mowed_ne),
-                       mowed_herb=mean(mowed_herb),
-                       mowed_all=mean(mowed_all),
-                       weedy_ne=mean(weedy_ne),
-                       weedy_herb=mean(weedy_herb),
-                       weedy_all=mean(weedy_all),
-                       week=mean(week),
-                       DOYphenol=mean(DOY))#average dates of all samples
-                       #returns some 'NaN' b/c there is only one sample
-}
-
-#Summarize: 'freq' = # observations for species at a site
+### Primary Summarizing ##
 {
-  #Create variable
-library(plyr)
-freq<-count(all.with.controls, c('site','species'), wt = NULL)
-#Merge into summarized.data
-summarized.data<-merge(summarized.data,freq,by = c('site','species'))
+  #### Create df 'summarized.data':  Means and SE of taxa (orders) and controls by species and site from all.with.controls
+  {library(plyr)
+    summarized.data<-ddply(all.with.controls, c('site', 'species','sitenum'),summarise,
+                           arach=mean(arachnida), #NOTE: The destination var cannot have same name as source var.
+                           arach.se=sd(arachnida)/sqrt(length(arachnida)),
+                           
+                           dipt_ne=mean(diptera_ne),
+                           dipt_ne.se=sd(diptera_ne)/sqrt(length(diptera_ne)),
+                           
+                           neurop_ne=mean(neuroptera_ne),
+                           neurop_ne.se=sd(neuroptera_ne)/sqrt(length(neuroptera_ne)),
+                           
+                           coleop_ne=mean(coleoptera_ne),
+                           coleop_ne.se=sd(coleoptera_ne)/sqrt(length(coleoptera_ne)),
+                           
+                           hymenop_ne=mean(hymenoptera_ne),
+                           hymenop_ne.se=sd(hymenoptera_ne)/sqrt(length(hymenoptera_ne)),
+                           
+                           hemip_ne=mean(hemiptera_ne),
+                           hemip_ne.se=sd(hemiptera_ne)/sqrt(length(hemiptera_ne)),
+                           
+                           ne=mean(total_ne),
+                           ne.se=sd(total_ne)/sqrt(length(total_ne)),                      
+                           
+                           herb=mean(total_herb),
+                           herb.se=sd(total_herb)/sqrt(length(total_herb)),
+                           
+                           mowed_ne=mean(mowed_ne),
+                           mowed_herb=mean(mowed_herb),
+                           mowed_all=mean(mowed_all),
+
+                           week=mean(week),
+                           DOYphenol=mean(DOY))#average dates of all samples
+    #returns some 'NaN' b/c there is only one sample
+  }
+  
+  ## Add Full Names
+  {# Bring in Names file.
+    names<-read.csv('Names.csv',header=TRUE)
+    # Merge into data frame
+    summarized.data<-merge(summarized.data,names,by=c('species'),all.x=TRUE)
+  }
+  
+  #Create 'freq' = # observations for species at a site  **This is broken***
+  {
+    #Create variable
+    library(plyr)
+    freq<-count(all.with.controls, c('site','species'), wt = NULL)
+    #Merge into summarized.data
+    summarized.data<-merge(summarized.data,freq,by = c('site','species'))
+  }
+  
+  #Order by site. (Needed to get desired faceting order)
+  {#Defines 'site' as factor whose order in df can determine chart order
+    summarized.data$site<-factor(summarized.data$site, levels=unique(summarized.data$site))
+    #Orders df as 1, 2, 3, (or NW, CRC, SW)
+    summarized.data<-summarized.data[order(summarized.data$sitenum, 
+                                           summarized.data$DOYphenol, 
+                                           summarized.data$species),]}
+  
+  # subset summarized.data by individual site data frames. dfs = 'SWMREC', ... 'NWMHRC'
+  {
+    SWMREC<-subset(summarized.data, site == "SWMREC")
+    CRC<-subset(summarized.data, site == "CRC")
+    NWMHRC<-subset(summarized.data, site == "NWMHRC")
+  }
+  
+  #Subset summarized.data by site AND Bloom Period. dfs = 'SMWREC.E', 'SWMREC.M', ... 'NWMHRC.L'
+  {
+    SWMREC.E<-subset(summarized.data, site == 'SWMREC' & DOYphenol < 200 )
+    SWMREC.M<-subset(summarized.data, site == 'SWMREC' & DOYphenol > 200 & DOYphenol < 230 )
+    SWMREC.L<-subset(summarized.data, site == 'SWMREC' & DOYphenol > 230 )
+    
+    CRC.E<-subset(summarized.data, site == 'CRC' & DOYphenol < 202 )
+    CRC.M<-subset(summarized.data, site == 'CRC' & DOYphenol > 202 & DOYphenol < 230 )
+    CRC.L<-subset(summarized.data, site == 'CRC' & DOYphenol > 230 )
+    
+    NWMHRC.E<-subset(summarized.data, site == 'NWMHRC' & DOYphenol < 200 )
+    NWMHRC.M<-subset(summarized.data, site == 'NWMHRC' & DOYphenol > 200 & DOYphenol < 233 )
+    NWMHRC.L<-subset(summarized.data, site == 'NWMHRC' & DOYphenol > 233 )
+    
+  }
+  
+  #### Create df 'stack':  Split summarized.data to stack NE and Herb
+  # new vars = 'class' 'abundance'
+  {
+  # Create new vars 'class' and 'abundance'
+  ne<-summarized.data
+  ne$abundance<-ne$ne
+  ne$class<-'ne'
+  herb<-summarized.data
+  herb$abundance<- -herb$herb
+  herb$class<-'herb'
+  #Merge back together
+  stack<-rbind(ne, herb)
+  stack$class<-as.factor(stack$class)
+  }
+  
+  # Subset 'stack' by site. dfs = 'S' 'C' 'N'
+  {
+  S<-subset(stack, site == 'SWMREC')
+  C<-subset(stack, site == 'CRC')
+  N<-subset(stack, site == 'NWMHRC')
+  }
+  
+  # Subset 'stack' by site AND Bloom Period. dfs = 'S.E', 'S.M', ... 'N.L'
+  {
+    S.E<-subset(stack, site == 'SWMREC' & DOYphenol < 200 )
+    S.M<-subset(stack, site == 'SWMREC' & DOYphenol > 200 & DOYphenol < 230 )
+    S.L<-subset(stack, site == 'SWMREC' & DOYphenol > 230 )
+    
+    C.E<-subset(stack, site == 'CRC' & DOYphenol < 202 )
+    C.M<-subset(stack, site == 'CRC' & DOYphenol > 202 & DOYphenol < 230 )
+    C.L<-subset(stack, site == 'CRC' & DOYphenol > 230 )
+    
+    N.E<-subset(stack, site == 'NWMHRC' & DOYphenol < 200 )
+    N.M<-subset(stack, site == 'NWMHRC' & DOYphenol > 200 & DOYphenol < 233 )
+    N.L<-subset(stack, site == 'NWMHRC' & DOYphenol > 233 )
+  }
+
+  
+  ##Reshape data for ne taxa stacked plots. new df = 'mtaxa.ne'
+  {#Extract columns
+    library(plyr)
+    taxa.ne <- subset(summarized.data, select = c(1, 2, 3,4,6,8,10,12,14,16))
+    DOY <- subset(summarized.data, select = c(1,2,29))#DOY won't be column 29 anymore
+    
+    #melt to long form, rename columns
+    library("reshape")
+    mtaxa.ne<-melt(taxa.ne, id=c("site","species",'sitenum'))
+    names(mtaxa.ne)[names(mtaxa.ne) == 'variable']<-'order'
+    names(mtaxa.ne)[names(mtaxa.ne) == 'value']<-'mean_ne'
+    #Merge DOY into mtaxa.ne for ordering
+    mtaxa.ne<-merge(mtaxa.ne,DOY,by = c('site','species'),all = TRUE)
+  }
 }
 
-#Order by site in summarized.data. 
-{#Defines 'site' as factor whose order in df can determine chart order
-summarized.data$site<-factor(summarized.data$site, levels=unique(summarized.data$site))
-#Orders df as 1, 2, 3, (or NW, CRC, SW)
-summarized.data<-summarized.data[order(summarized.data$sitenum, 
-                                       summarized.data$DOYphenol, 
-                                       summarized.data$species),]}
 
-#Summarize: subset individual site data frames from summarized.data
-{
-  SWMREC<-subset(summarized.data, site == "SWMREC")
-CRC<-subset(summarized.data, site == "CRC")
-NWMHRC<-subset(summarized.data, site == "NWMHRC")
-}
 
-#Ranking
+#Ranking by bloom time
 {library(dplyr)
 #by Attractiveness
 SWMREC$rank_ne <- rank(SWMREC$ne)
@@ -397,11 +473,7 @@ summary.all<-summary.all[order(summary.all$sitenum,
 }
 
 
-#### Adding Full Names ####
-# Bring in Names file.
-names<-read.csv('Names.csv',header=TRUE)
-# Merge into data frame
-summarized.data<-merge(summarized.data,names,by=c('species'),all.x=TRUE)
+
 
 
 #### Normalizing by Controls ####
