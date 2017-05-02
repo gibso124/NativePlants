@@ -969,6 +969,148 @@ NWsig<-NWsig[which(NWsig$species == 'ACMI2' | NWsig$species == 'ASVE' |
   
 }
 
+### All Families Summary##
+{
+  #### Create df 'summarized.data.families':  Means and SE of taxa (original) and controls by species and site from all.with.controls
+  {library(plyr)
+    summarized.data.families<-ddply(all.with.controls, c('site', 'species','sitenum'),summarise,
+                                    arach=mean(arachnida), #NOTE: The destination var cannot have same name as source var.
+                                    arach.se=sd(arachnida)/sqrt(length(arachnida)),
+                                    
+                                    anthocorid=mean(anthocoridae),
+                                    anthocorid.se=sd(anthocoridae)/sqrt(length(anthocoridae)),
+                                    
+                                    nabid=mean(nabidae),
+                                    nabid.se=sd(nabidae)/sqrt(length(nabidae)),
+                                    
+                                    reduviid=mean(reduviidae),
+                                    reduviid.se=sd(reduviidae)/sqrt(length(reduviidae)),
+                                    
+                                    aphid=mean(aphidae),
+                                    aphid.se=sd(aphidae)/sqrt(length(aphidae)),
+                                    
+                                    cercopid=mean(cercopidae),
+                                    cercopid.se=sd(cercopidae)/sqrt(length(cercopidae)),
+                                    
+                                    cicadellid=mean(cicadellidae),
+                                    cicadellid.se=sd(cicadellidae)/sqrt(length(cicadellidae)),
+                                    
+                                    mirid=mean(herb_miridae),
+                                    mirid.se=sd(herb_miridae)/sqrt(length(herb_miridae)),
+                                    
+                                    pentatomid=mean(pentatomidae),
+                                    pentatomid.se=sd(pentatomidae)/sqrt(length(pentatomidae)),
+                                    
+                                    tingid=mean(tingidae),
+                                    tingid.se=sd(tingidae)/sqrt(length(tingidae)),
+                                    
+                                    imm_homopt=mean(imm_homopteran),
+                                    imm_homopt.se=sd(imm_homopteran)/sqrt(length(imm_homopteran)),
+                                    
+                                    hoppers=mean(cercopidae+cicadellidae+imm_homopteran),
+                                    hoppers.se=sd(cercopidae+cicadellidae+imm_homopteran)/sqrt(length(cercopidae+cicadellidae+imm_homopteran)),
+                                    
+                                    cantharid=mean(cantharidae),
+                                    cantharid.se=sd(cantharidae)/sqrt(length(cantharidae)),
+                                    
+                                    carabid=mean(carabidae),
+                                    carabid.se=sd(carabidae)/sqrt(length(carabidae)),
+                                    
+                                    coccinellid=mean(coccinellidae),
+                                    coccinellid.se=sd(coccinellidae)/sqrt(length(coccinellidae)),
+                                    
+                                    cerambicid=mean(cerambicidae),
+                                    cerambicid.se=sd(cerambicidae)/sqrt(length(cerambicidae)),
+                                    
+                                    chrysomelid=mean(chrysomelidae),
+                                    chrysomelid.se=sd(chrysomelidae)/sqrt(length(chrysomelidae)),
+                                    
+                                    curculionid=mean(curculionidae),
+                                    curculionid.se=sd(curculionidae)/sqrt(length(curculionidae)),
+                                    
+                                    elaterid=mean(elateridae),
+                                    elaterid.se=sd(elateridae)/sqrt(length(elateridae)),
+                                    
+                                    scarabid=mean(scarabidae),
+                                    scarabid.se=sd(scarabidae)/sqrt(length(scarabidae)),
+                                    
+                                    p.japonica=mean(Jap_beetles),
+                                    p.japonica.se=sd(Jap_beetles)/sqrt(length(Jap_beetles)),
+                                    
+                                    chrysopid=mean(chrysopidae),
+                                    chrysopid.se=sd(chrysopidae)/sqrt(length(chrysopidae)),
+                                    
+                                    hemerobiid=mean(hemerobiidae),
+                                    hemerobiid.se=sd(hemerobiidae)/sqrt(length(hemerobiidae)),
+                                    
+                                    parasitoids=mean(parasitoid_wasps),
+                                    parasitoids.se=sd(parasitoid_wasps)/sqrt(length(parasitoid_wasps)),
+                                    
+                                    sphecid=mean(sphecidae),
+                                    sphecid.se=sd(sphecidae)/sqrt(length(sphecidae)),
+                                    
+                                    tiphiid=mean(tiphiidae),
+                                    tiphiid.se=sd(tiphiidae)/sqrt(length(tiphiidae)),
+                                    
+                                    vespid=mean(vespidae),
+                                    vespid.se=sd(vespidae)/sqrt(length(vespidae)),
+                                    
+                                    bombyliid=mean(bombyliidae),
+                                    bombyliid.se=sd(bombyliidae)/sqrt(length(bombyliidae)),
+                                    
+                                    syrphid=mean(syrphidae),
+                                    syrphid.se=sd(syrphidae)/sqrt(length(syrphidae)),
+                                    
+                                    tachinid=mean(tachinidae),
+                                    tachinid.se=sd(tachinidae)/sqrt(length(tachinidae)),
+                                    
+                                    POSS_TACH=mean(POSS_TACHINID),
+                                    POSS_TACH.se=sd(POSS_TACHINID)/sqrt(length(POSS_TACHINID)),
+                                    
+                                    orthopt=mean(orthoptera),
+                                    orthopt.se=sd(orthoptera)/sqrt(length(orthoptera)),
+                                    
+                                    lep_adults=mean(lep_adult),
+                                    lep_adults.se=sd(lep_adult)/sqrt(length(lep_adult)),
+                                    
+                                    lep_cats=mean(lep_caterpillar),
+                                    lep_cats.se=sd(lep_caterpillar)/sqrt(length(lep_caterpillar)),
+                                    
+                                    meloid=mean(meloidae),
+                                    meloid.se=sd(meloidae)/sqrt(length(meloidae)),
+                                    
+                                    psyllid=mean(psyllidae),
+                                    psyllid.se=sd(psyllidae)/sqrt(length(psyllidae)),
+                                    
+                                    unk_23=mean(unk_beetle_23),
+                                    unk_23.se=sd(unk_beetle_23)/sqrt(length(unk_beetle_23)),
+                                    
+                                    ne=mean(total_ne),
+                                    ne.se=sd(total_ne)/sqrt(length(total_ne)),                      
+                                    
+                                    herb=mean(total_herb),
+                                    herb.se=sd(total_herb)/sqrt(length(total_herb)),
+                                    
+                                    mowed_ne=mean(mowed_ne),
+                                    mowed_herb=mean(mowed_herb),
+                                    mowed_all=mean(mowed_all),
+                                    
+                                    week=mean(week),
+                                    DOYphenol=mean(DOY))#average dates of all samples
+    #returns some 'NaN' b/c there is only one sample
+  }
+  
+  ## Add Full Names
+  {# Bring in Names file.
+    names<-read.csv('Names.csv',header=TRUE)
+    # Merge into data frame
+    summarized.data.families<-merge(summarized.data.families,names,by=c('species'),all.x=TRUE)
+  }
+  
+  ## Export
+  write.csv(summarized.data.families, 'summarized.data.families--3.3.2017.csv')
+  
+}
 
 ####Herbivore taxa (sums) ##### -----
 
