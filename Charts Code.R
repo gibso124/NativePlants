@@ -358,8 +358,355 @@ barplot.1
 
 
 #NMDs Code line s690-824 in Lampyrid code on GitHub ####
+##########################################################################
+# NEW CHARTS
+##########################################################################-
+#### NE: Full Site Plots ####
+#Currently Optimized for 10 x 16 inch PDF
+#theme 'bw' has gridlines, theme 'classic' does not
+library(ggplot2)
+fullsite<-ggplot(ALLsig, aes(x=reorder(sci_name,DOYphenol), y=ne))+
+  geom_bar(stat="identity", colour="black")+
+  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se),
+                width=.4,
+                size=0.5)+
+  theme_classic(base_size = 23)+
+  guides(fill=FALSE)+
+  ylab("Mean natural enemies / sample ± SE\n")+
+  xlab("Plant species")+
+  theme(axis.text.x=element_text(angle=65,
+                                 hjust=1,
+                                 colour = 'black'),
+        axis.text.y=element_text(colour = 'black'))
+  # ylim(-14, 80) + # Pie chart space: SW & CRC = (-20, 115)  NWMHRC = (-14, 80)
+  
+  # # Bloom Period Lines
+  # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
+  # geom_vline(xintercept=9.5, color='dark gray',size=0.5,linetype='dashed')+
 
-#### Summarizing Data ##### ----
+  # # Controls
+  # geom_point(data=SWsig, aes(x=as.numeric(reorder(scientific_name,DOYphenol)), y=mowed_ne, group=1))
+  # geom_point(data=ALLsig, size = 3, aes(x=as.numeric(reorder(sci_name,DOYphenol)), y=mowed_ne, group=1))
+fullsite
+
+#save to pdf
+pdf("Significant only - 2015 NE statewide means.pdf", height=10, width=16) # line widths and font size are optimized for this PDF size
+fullsite
+dev.off()
+
+# Bloom period line  distances:
+# SWMREC full site    16.5    35.5 
+# CRC    full site    11.5    26.5
+# NWMHRC full site    11.5    27.5 
+# SWMREC Sig only     2.5     7.5
+# CRC    Sig Only     2.5     7.5
+# NWMHRC Sig Only     2.5     9.5
+
+
+#### NE: Early, Mid, Late Plots ####
+library(ggplot2)
+bp<-ggplot(SWMREC.E, aes(x=reorder(sci_name,DOYphenol), y=ne))+
+  geom_bar(stat="identity", colour="black")+
+  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se),
+                width=.4,
+                size=0.5)+
+  theme_classic(base_size = 23)+
+  guides(fill=FALSE)+
+  ylab("Mean natural enemies / sample\n")+
+  xlab("Plant species")+
+  theme(axis.text.x=element_text(angle=65,
+                                 hjust=1,
+                                 colour = 'black'),
+        axis.text.y=element_text(colour = 'black'))+
+  geom_point(data=SWMREC.E, aes(x=as.numeric(reorder(scientific_name,DOYphenol)), y=mowed_ne, group=1))
+bp
+
+#save to pdf
+pdf("INTRO.PLOT.pdf", height=8, width=10) # line widths and font size are optimized for this PDF size
+bp
+dev.off()
+
+
+
+
+
+
+
+#### NE & Herb: up/down Full Site Plots (offset bars) ####
+#Currently Optimized for 10 x 16 inch PDF
+#theme 'bw' has gridlines, theme 'classic' does not
+library(ggplot2)
+neherb<-ggplot(C.sig, aes(x=reorder(sci_name,DOYphenol), y=abundance, fill=class))+
+  geom_bar(stat="identity",
+           position = 'dodge',
+           colour="black")+
+  
+  scale_fill_manual(values=c("lightgoldenrod3", "tomato2")) + #Colors to match pp headings
+  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se),
+  # geom_errorbar(aes(ymin=ne-ne.se, ymax=ne),
+                width=.2,
+                size=0.5,
+                position = position_nudge(x = 0.23))+         # CENTERS ERROR BARS
+  geom_errorbar(aes(ymin=-herb-herb.se, ymax=-herb+herb.se),
+  # geom_errorbar(aes(ymin=-herb, ymax=-herb+herb.se),
+                width=.2,
+                size=0.5,
+                position = position_nudge(x = -0.23))+
+  
+
+  theme_classic(base_size = 23)+
+  guides(fill=FALSE)+
+  ylab("Mean arthropods / sample ± SE\n")+
+  xlab("Plant species")+
+  theme(axis.text.x=element_text(angle=65,
+                                 hjust=1,
+                                 colour = 'black'),
+        axis.text.y=element_text(colour = 'black'))+
+  
+  # ylim(-130, 115) + # tO ACCOUNT FOR SYSE2 OUTLIER AT CRC
+  # expand_limits(y=-55) + # Pie space. SWMREC = -120    CRC = -150     NWMHRC = -55
+  
+  geom_vline(xintercept=2.5, color='dark gray',size=0.5,   linetype='dashed')+ 
+  geom_vline(xintercept=9.5, color='dark gray',size=0.5,   linetype='dashed')+ 
+
+  geom_point(data=C.sig, size = 3, aes(x=as.numeric(reorder(sci_name,DOYphenol)), 
+                         y=mowed_ne, group=1), position = position_nudge(x = +0.23))+
+  geom_point(data=C.sig, size = 3, aes(x=as.numeric(reorder(sci_name,DOYphenol)), 
+                         y=-mowed_herb, group=1), position = position_nudge(x = -0.23))
+neherb
+
+#save to pdf
+pdf("N stacked PP SIG ONLY .pdf", height=10, width=16) # line widths and font size are optimized for this PDF size
+neherb
+dev.off()
+
+# Bloom period line  distances:
+# SWMREC full site    16.5    35.5 
+# CRC    full site    11.5    26.5
+# NWMHRC full site    11.5    27.5 
+# SWMREC Sig only     2.5     7.5
+# CRC    Sig Only     2.5     7.5
+# NWMHRC Sig Only     2.5     9.5
+
+#### NE & Herb: up/down Full Site Plots (directly stacked bars) ####
+#Currently Optimized for 10 x 16 inch PDF
+#theme 'bw' has gridlines, theme 'classic' does not
+library(ggplot2)
+neherb<-ggplot(N.sig, aes(x=reorder(sci_name,DOYphenol), y=abundance, fill=class))+
+  geom_bar(stat="identity",
+           colour="black")+
+  
+  scale_fill_manual(values=c("lightgoldenrod3", "tomato2")) + #Colors to match pp headings
+  geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se),
+                # geom_errorbar(aes(ymin=ne-ne.se, ymax=ne),
+                width=.4,
+                size=0.5)+        
+  geom_errorbar(aes(ymin=-herb-herb.se, ymax=-herb+herb.se),
+                # geom_errorbar(aes(ymin=-herb, ymax=-herb+herb.se),
+                width=.4,
+                size=0.5)+
+  
+  theme_classic(base_size = 23)+
+  guides(fill=FALSE)+
+  ylab("Mean arthropods / sample ± SE\n")+
+  xlab("Plant species")+
+  theme(axis.text.x=element_text(angle=65,
+                                 hjust=1,
+                                 colour = 'black'),
+        axis.text.y=element_text(colour = 'black'))+
+  # ylim(-130, 115) + # tO ACCOUNT FOR SYSE2 OUTLIER AT CRC full site
+  expand_limits(y=-55) + # Pie space. SWMREC = -120    CRC = -150     NWMHRC = -55
+  
+  geom_vline(xintercept=2.5, color='dark gray',size=0.5,   linetype='dashed')+ 
+  geom_vline(xintercept=9.5, color='dark gray',size=0.5,   linetype='dashed')+ 
+  
+  geom_point(data=N.sig, size = 3, aes(x=as.numeric(reorder(sci_name,DOYphenol)), 
+                                       y=mowed_ne, group=1))+
+  geom_point(data=N.sig, shape = 17, size = 3, aes(x=as.numeric(reorder(sci_name,DOYphenol)), 
+                                       y=-mowed_herb, group=1))
+neherb
+
+#save to pdf
+pdf("Significant only - NWMHRC direct stacked.pdf", height=10, width=16) # line widths and font size are optimized for this PDF size
+neherb
+dev.off()
+
+# Bloom period line  distances:
+# SWMREC full site    16.5    35.5 
+# CRC    full site    11.5    26.5
+# NWMHRC full site    11.5    27.5 
+# SWMREC Sig only     2.5     7.5
+# CRC    Sig Only     2.5     7.5
+# NWMHRC Sig Only     2.5     9.5
+
+#### NE: Pie Charts  ####
+#theme 'bw' has gridlines, theme 'classic' does not
+library(RColorBrewer)
+library(ggplot2)
+# pie<-ggplot(mtaxa.ne,
+pie<-ggplot(data = subset(mtaxa.ne, site == 'NWMHRC'),
+            aes(x=factor(1), 
+                y=abundance, 
+                fill=factor(order)))+
+  theme_classic()+
+  scale_fill_brewer(type = 'qual', palette = 7, guide = 'legend') +
+  geom_bar(stat = 'identity', width = 1, position = 'fill') + # Add colour = 'black' when faceting down to site*species
+  xlab('')+
+  ylab('')+
+  scale_y_continuous(
+    breaks=NULL,
+    labels=NULL)+
+  
+  #  # Use this only when df in use is fully facetted.
+  # scale_y_continuous( 
+  #   breaks=cumsum(mtaxa.ne$abundance) - mtaxa.ne$abundance/2,
+  #   labels=mtaxa.ne$order)+
+  
+  # facet_grid(facets = .(~site, ~species))+
+  facet_wrap(~reorder(species, DOYphenol), ncol = 7)+
+  coord_polar(theta = 'y')
+pie
+
+#save to pdf
+pdf("NWMHRC Ne taxa - facetted by species.pdf", height=11, width=8.5) # single: 3x5 | 3 sites: 2x6 | all species: 11x8.5
+pie
+dev.off()
+
+
+
+#### NE: Coxcomb Charts  ####
+#theme 'bw' has gridlines, theme 'classic' does not
+library(RColorBrewer)
+library(ggplot2)
+# coxcomb<-ggplot(data = subset(mtaxa.ne, site == 'NWMHRC'),
+coxcomb<-ggplot(ne3,
+            aes(x=factor(taxa), 
+                y=count, 
+                fill=factor(taxa)))+
+  theme_classic()+
+  scale_fill_brewer(type = 'qual', palette = 7, guide = 'legend') +
+  geom_bar(stat = 'identity', width = 1) + # Add colour = 'black' when faceting down to site*species
+  
+  labs(title='\n Sum NEs 2015 - all sites')+
+  
+  xlab('')+
+  ylab('')+
+  theme(axis.text.x=element_blank())+
+  # scale_y_continuous(
+  #   breaks=NULL,
+  #   labels=NULL)+
+
+  #  # Use this only when df in use is fully facetted.
+  # scale_y_continuous( 
+  #   breaks=cumsum(mtaxa.ne$abundance) - mtaxa.ne$abundance/2,
+  #   labels=mtaxa.ne$order)+
+  
+  # geom_vline(xintercept=1.5, color='gray',size=0.5,linetype='dashed')+ 
+  
+  # facet_grid(facets = .(~reorder(species, DOYphenol), ~site))+
+  # facet_wrap(~reorder(species, DOYphenol), ncol = 7)+
+  facet_wrap(~site, ncol = 3)+
+  
+  coord_polar()
+coxcomb
+
+#save to pdf
+pdf("Coxcomb - Sum NEs facetted by site.pdf", height=4, width=6) # single: 3x5 | 3 sites: 2x6 | all species: 11x8.5
+coxcomb
+dev.off()
+
+
+#### HERB: Preliminary viewing ####
+library(ggplot2)
+# herbs<-ggplot(mtaxa.herb, aes(x=reorder(species,DOYphenol), y=count))+
+herbs<-ggplot(mtaxa.herb,
+                aes(x=factor(taxa), 
+                    y=count, 
+                    fill=factor(taxa)))+
+  geom_bar(stat="identity")+
+
+  theme_classic(base_size = 10)+
+  # guides(fill=FALSE)+
+  labs(title='\n Total Herbivores 2015 - all sites')+
+  ylab("Sum herbivores \n")+
+  xlab("herbivore taxa")+
+  theme(axis.text.x=element_text(angle=65,
+                                 hjust=1,
+                                 colour = 'black'),
+        axis.text.y=element_text(colour = 'black'))+
+# facet_wrap(~reorder(species, DOY), ncol = 7, scales = 'free_y')
+facet_wrap(~site, ncol = 3)
+
+  
+herbs
+
+#save to pdf
+pdf("total herbivores - facetted by site.pdf", height=8.5, width=11) # line widths and font size are optimized for this PDF size
+herbs
+dev.off()
+
+# Stacked Graph
+herbs2<-ggplot(mtaxa.herb,aes(x=site, 
+    y=count, 
+    fill=factor(taxa)))+
+  geom_bar(stat = 'identity') +
+  # guides(fill=FALSE)+
+  theme_classic(base_size = 10)+
+  labs(title='\n Total Herbivores 2015 - all sites')+
+  ylab("Sum herbivores \n")+
+  xlab("herbivore taxa")+
+  theme(axis.text.x=element_text(angle=65,
+                                 hjust=1,
+                                 colour = 'black'),
+        axis.text.y=element_text(colour = 'black'))
+  # facet_wrap(~reorder(species, DOY), ncol = 7, scales = 'free_y')
+  # facet_wrap(~site, ncol = 3)
+
+
+herbs2
+
+
+#### HERB: Pie Charts (Experimental) ####
+
+# df "mtaxa.herb" is not summarized, just stacked, so charts take a LOOOONG time to process
+# and have unwanted lines because the individual samples have not been averaged or summed.
+# Need to make a "summarized.data" type df for herbs, then melt that.
+
+library(RColorBrewer)
+library(ggplot2)
+# pie2<-ggplot(mtaxa.herb,
+pie2<-ggplot(data = subset(mtaxa.herb, site == 'NWMHRC'),
+            aes(x=factor(1), 
+                y=count, 
+                fill=factor(taxa)))+
+  theme_classic()+
+  # scale_fill_brewer(type = 'qual', palette = 7, guide = 'legend') +
+  geom_bar(stat = 'identity', width = 1, position = 'fill') + # Add colour = 'black' when faceting down to site*species
+  xlab('')+
+  ylab('')+
+  scale_y_continuous(
+    breaks=NULL,
+    labels=NULL)+
+  
+  #  # Use this only when df in use is fully facetted.
+  # scale_y_continuous( 
+  #   breaks=cumsum(mtaxa.ne$abundance) - mtaxa.ne$abundance/2,
+  #   labels=mtaxa.ne$order)+
+  
+  # facet_grid(facets = .(~site, ~species))+
+  facet_wrap(~reorder(species, DOY), ncol = 7)+
+  coord_polar(theta = 'y')
+pie2
+
+#save to pdf
+pdf("NWMHRC Herb taxa - Pies facetted by species.pdf", height=11, width=8.5) # single: 3x5 | 3 sites: 2x6 | all species: 11x8.5
+pie
+dev.off()
+
+
+
+##########################################################################
+#### Summarizing Data (means) ##### ----
 
 ### Primary Summarizing ##
 {
@@ -485,22 +832,203 @@ barplot.1
 
   
   ##Reshape data for ne taxa stacked plots. new df = 'mtaxa.ne'
+  # ne vars = 'order' 'abundance'
   {#Extract columns
     library(plyr)
-    taxa.ne <- subset(summarized.data, select = c(1, 2, 3,4,6,8,10,12,14,16))
-    DOY <- subset(summarized.data, select = c(1,2,29))#DOY won't be column 29 anymore
+    taxa.ne <- subset(summarized.data, select = c(1, 2, 3,4,6,8,10,12,14))
+    DOY <- subset(summarized.data, select = c(1,2,23,24,25,26,27))
     
     #melt to long form, rename columns
     library("reshape")
     mtaxa.ne<-melt(taxa.ne, id=c("site","species",'sitenum'))
     names(mtaxa.ne)[names(mtaxa.ne) == 'variable']<-'order'
-    names(mtaxa.ne)[names(mtaxa.ne) == 'value']<-'mean_ne'
+    names(mtaxa.ne)[names(mtaxa.ne) == 'value']<-'abundance'
     #Merge DOY into mtaxa.ne for ordering
     mtaxa.ne<-merge(mtaxa.ne,DOY,by = c('site','species'),all = TRUE)
+    
+    #Defines 'site' as factor whose order in df can determine chart order
+    mtaxa.ne$site<-factor(mtaxa.ne$site, levels=unique(mtaxa.ne$site))
+    mtaxa.ne$sitenum<-as.character(mtaxa.ne$sitenum)
+    #Orders df as 1, 2, 3, (or NW, CRC, SW)
+    mtaxa.ne<-mtaxa.ne[order(mtaxa.ne$sitenum, 
+                             mtaxa.ne$DOYphenol, 
+                             mtaxa.ne$species),]
   }
 }
 
+#Subset of significant (T-TEST AGAINST MOWED) species from 'summarized.data'
+{ #SWMREC
+  SWsig<-summarized.data[which(summarized.data$site == 'SWMREC'),]
+SWsig<-SWsig[which(SWsig$species == 'ACMI2' | SWsig$species == 'LOCO6' |
+                        SWsig$species == 'MOFI' | SWsig$species == 'SONE' |
+                        SWsig$species == 'PYVI' | SWsig$species == 'MOPU' |
+                        SWsig$species == 'PYPI' | SWsig$species == 'HEOC2' |
+                        SWsig$species == 'COTR4' | SWsig$species == 'OLRI' |
+                        SWsig$species == 'HEST' | SWsig$species == 'SYSE2' |
+                        SWsig$species == 'SYOO' | SWsig$species == 'SOSP2' ),]
 
+#CRC
+CRCsig<-summarized.data[which(summarized.data$site == 'CRC'),]
+CRCsig<-CRCsig[which(CRCsig$species == 'ACMI2' | CRCsig$species == 'ASVE' |
+                      CRCsig$species == 'CESTM' | CRCsig$species == 'COTR4' |
+                      CRCsig$species == 'DAFR6' | CRCsig$species == 'HEOC2' |
+                      CRCsig$species == 'HEST' | CRCsig$species == 'LOCO6' |
+                      CRCsig$species == 'MOFI' | CRCsig$species == 'PYVI' |
+                      CRCsig$species == 'OLRI' | CRCsig$species == 'SIIN2' |
+                      CRCsig$species == 'SOJU' | CRCsig$species == 'SONE' ),]
+
+#NWMHRC
+NWsig<-summarized.data[which(summarized.data$site == 'NWMHRC'),]
+NWsig<-NWsig[which(NWsig$species == 'ACMI2' | NWsig$species == 'ASVE' |
+                     NWsig$species == 'CESTM' | NWsig$species == 'CHANA2' |
+                     NWsig$species == 'COPA10' | NWsig$species == 'COTR4' |
+                     NWsig$species == 'DAPU5' | NWsig$species == 'ECPU' |
+                     NWsig$species == 'ERYU' | NWsig$species == 'HEOC2' |
+                     NWsig$species == 'HEST' | NWsig$species == 'MOPU' |
+                     NWsig$species == 'OLRI' | NWsig$species == 'PEHI' |
+                     NWsig$species == 'PYPI' | NWsig$species == 'PYVI' |
+                     NWsig$species == 'RAPI' | NWsig$species == 'RUHI2' |
+                     NWsig$species == 'SIIN2' | NWsig$species == 'SOJU' |
+                     NWsig$species == 'SONE' | NWsig$species == 'SOSP2' ),]
+
+
+#### Create df 'ALLsig':  Means and SE of total ne by species from all.with.controls
+## This is mean across sites.
+{library(plyr)
+  ALLsig<-ddply(all.with.controls, c('species'),summarise,
+                         
+                         ne=mean(total_ne),
+                         ne.se=sd(total_ne)/sqrt(length(total_ne)),                      
+
+                         
+                         mowed_ne=mean(mowed_ne),
+                         
+                         week=mean(week),
+                         DOYphenol=mean(DOY))#average dates of all samples
+  #returns some 'NaN' b/c there is only one sample
+}
+## Add Full Names to 'ALLsig'
+{# Bring in Names file.
+  names<-read.csv('Names.csv',header=TRUE)
+  # Merge into data frame
+  ALLsig<-merge(ALLsig,names,by=c('species'),all.x=TRUE)
+}
+## Subset to only significant plants
+{ALLsig<-ALLsig[which(ALLsig$species == 'PEHI' | ALLsig$species == 'ACMI2' |
+                       ALLsig$species == 'LOCO6' | ALLsig$species == 'RUHI2' |
+                       ALLsig$species == 'COPA10' | ALLsig$species == 'MOFI' |
+                       ALLsig$species == 'SONE' | ALLsig$species == 'PYVI' |
+                       ALLsig$species == 'DAFR6' | ALLsig$species == 'RAPI' |
+                       ALLsig$species == 'CESTM' | ALLsig$species == 'CHANA2' |
+                       ALLsig$species == 'ASVE' | ALLsig$species == 'MOPU' |
+                       ALLsig$species == 'ERYU' | ALLsig$species == 'ECPU' |
+                       ALLsig$species == 'SOJU' | ALLsig$species == 'PYPI' |
+                       ALLsig$species == 'DAPU5' | ALLsig$species == 'HEOC2' |
+                       ALLsig$species == 'COTR4' | ALLsig$species == 'SIIN2' |
+                       ALLsig$species == 'OLRI' | ALLsig$species == 'HEST' |
+                       ALLsig$species == 'SYSE2' | 
+                       ALLsig$species == 'SYOO' | ALLsig$species == 'SOSP2' ),]
+  }
+
+}
+
+#Subset of significant (T-TEST AGAINST MOWED) species from 'stack'
+{ # SWMREC
+  S.sig<-stack[which(stack$site == 'SWMREC'),]
+  S.sig<-S.sig[which(S.sig$species == 'ACMI2' | S.sig$species == 'LOCO6' |
+                       S.sig$species == 'MOFI' | S.sig$species == 'SONE' |
+                       S.sig$species == 'PYVI' | S.sig$species == 'MOPU' |
+                       S.sig$species == 'PYPI' | S.sig$species == 'HEOC2' |
+                       S.sig$species == 'COTR4' | S.sig$species == 'OLRI' |
+                       S.sig$species == 'HEST' | S.sig$species == 'SYSE2' |
+                       S.sig$species == 'SYOO' | S.sig$species == 'SOSP2' ),]
+  
+  #CRC
+  C.sig<-stack[which(stack$site == 'CRC'),]
+  C.sig<-C.sig[which(C.sig$species == 'ACMI2' | C.sig$species == 'ASVE' |
+                       C.sig$species == 'CESTM' | C.sig$species == 'COTR4' |
+                       C.sig$species == 'DAFR6' | C.sig$species == 'HEOC2' |
+                       C.sig$species == 'HEST' | C.sig$species == 'LOCO6' |
+                       C.sig$species == 'MOFI' | C.sig$species == 'PYVI' |
+                       C.sig$species == 'OLRI' | C.sig$species == 'SIIN2' |
+                       C.sig$species == 'SOJU' | C.sig$species == 'SONE' ),]
+  
+  #NWMHRC
+  N.sig<-stack[which(stack$site == 'NWMHRC'),]
+  N.sig<-N.sig[which(N.sig$species == 'ACMI2' | N.sig$species == 'ASVE' |
+                       N.sig$species == 'CESTM' | N.sig$species == 'CHANA2' |
+                       N.sig$species == 'COPA10' | N.sig$species == 'COTR4' |
+                       N.sig$species == 'DAPU5' | N.sig$species == 'ECPU' |
+                       N.sig$species == 'ERYU' | N.sig$species == 'HEOC2' |
+                       N.sig$species == 'HEST' | N.sig$species == 'MOPU' |
+                       N.sig$species == 'OLRI' | N.sig$species == 'PEHI' |
+                       N.sig$species == 'PYPI' | N.sig$species == 'PYVI' |
+                       N.sig$species == 'RAPI' | N.sig$species == 'RUHI2' |
+                       N.sig$species == 'SIIN2' | N.sig$species == 'SOJU' |
+                       N.sig$species == 'SONE' | N.sig$species == 'SOSP2' ),]
+  
+}
+
+
+####Herbivore taxa (sums) ##### -----
+
+#subset data
+library(dplyr)
+taxa.herb<- select(all.nocontrols, DOY, week, sitenum,site,species,
+            block,sample_ident_vac,aphidae,cercopidae,cicadellidae,herb_miridae,
+             pentatomidae,tingidae,imm_homopteran,cerambicidae,
+             chrysomelidae,curculionidae,elateridae,scarabidae,
+             orthoptera,lep_adult,lep_caterpillar)
+
+
+
+#melt the matrix, rename columns
+library("reshape")
+mtaxa.herb<-melt(taxa.herb, id=c('DOY', 'week', 'sitenum','site','species',
+            'block','sample_ident_vac'))
+names(mtaxa.herb)[names(mtaxa.herb) == 'variable']<-'taxa'
+names(mtaxa.herb)[names(mtaxa.herb) == 'value']<-'count'
+
+#Defines 'site' and 'sitenum' as factors whose order in df can determine chart order
+mtaxa.herb$site<-factor(mtaxa.herb$site, levels=unique(mtaxa.herb$site))
+mtaxa.herb$sitenum<- as.numeric(as.vector(mtaxa.herb$sitenum))
+#Orders df as 1, 2, 3, (or NW, CRC, SW)
+mtaxa.herb<-mtaxa.herb[order(mtaxa.herb$sitenum,
+                             mtaxa.herb$DOY, 
+                             mtaxa.herb$species),]
+
+
+library(plyr)
+  herbtaxa<-ddply(mtaxa.herb, c('site','sitenum','taxa'),summarise,
+                         count=sum(count))
+  
+  
+#### Natural Enemy taxa (sums) ##### ----
+  
+  #subset data
+  library(dplyr)
+  ne2<- select(all.nocontrols, DOY, week, sitenum,site,species,
+                     block,sample_ident_vac, arachnida, diptera_ne,
+                     neuroptera_ne,coleoptera_ne,hymenoptera_ne,hemiptera_ne)
+  #melt the matrix, rename columns
+  library("reshape")
+  ne2<-melt(ne2, id=c('DOY', 'week', 'sitenum','site','species',
+                                   'block','sample_ident_vac'))
+  names(ne2)[names(ne2) == 'variable']<-'taxa'
+  names(ne2)[names(ne2) == 'value']<-'count'
+  
+  #Defines 'site' and 'sitenum' as factors whose order in df can determine chart order
+  ne2$site<-factor(ne2$site, levels=unique(ne2$site))
+  ne2$sitenum<- as.numeric(as.vector(ne2$sitenum))
+  #Orders df as 1, 2, 3, (or NW, CRC, SW)
+  ne2<-ne2[order(ne2$sitenum,
+                 ne2$DOY, 
+                 ne2$species),]
+  
+  library(plyr)
+  ne3<-ddply(ne2, c('site','sitenum','taxa'),summarise,
+                  count=sum(count))
+#####-
 
 #Ranking by bloom time
 {library(dplyr)
@@ -629,3 +1157,10 @@ gLHT()
 #Function could be glmmAbb or glmmbuild
 #Model that is highly customizable and should fit the data well 
 glmmabb(x~y,family = Poisson)
+
+
+#### NE data subset for Logan for plant traits analysis ####
+CRC.NE<-summarized.data
+CRC.NE<-subset(CRC.NE, site == 'CRC')
+CRC.NE<-subset(CRC.NE, select = c(23,24,3,2,1,16,17,18,19,25,26,27,4,5,6,7,8,9,10,11,12,13,14,15))
+write.csv(CRC.NE, 'CRC NE data Summary 2.23.2017.csv')

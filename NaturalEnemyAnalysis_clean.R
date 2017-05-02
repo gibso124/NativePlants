@@ -1347,4 +1347,4 @@ names.data<-read.csv('Names.csv',header=TRUE)
 # Bring in Phenology file.
 phenol.data<-read.csv('Phenology.csv',header=TRUE)
 
-
+write.csv(vac.peak, 'vac.peak.2.20.2017.csv')
