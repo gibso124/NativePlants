@@ -2,62 +2,303 @@
 #### BRING IN DATA #### ----
 ##########################################################################-
 
-# #Bring in floral area reference
-# {
-# #Bring in floral area
-# area<-read.csv("floral_area.csv",header=TRUE)
-# 
-# #Check on data quality
-# summary(area)
-# 
-# #Getting rid of the 'floral.area' mean area calculated in Excel
-# area$mean_area<-NULL
-# 
-# #Calculate new mean area in 'floral.area'
-# area$avgarea<-rowMeans(area[,5:9])
-# 
-# #Remove site from floral.area
-# area$site<-NULL
-# }
-
 #Bring in primary data
 #*******************
 
-#Bring in floral data (complete version)
-# floral.RAW<-read.csv("2015_floral_Data_1.30.2017.csv",header=TRUE)
-# floral.RAW<-read.csv("2015_floral_Data_1.30.2017_Refined.csv",header=TRUE)
-floral.RAW<-read.csv("2015_floral_Data_1.30.2017_Refined2.csv",header=TRUE)
 
-floral<-floral.RAW
+# Import floral data -----
+library(readr)
+floral_raw <-
+  read_csv(
+    "C:/Users/gibso124/Dropbox/MSU Data Analysis/Natural Enemies Data Analysis/NativePlants/2015_floral_Data_5_2_2017_Refined.csv",
+    col_types = cols(
+      block = col_factor(levels = c("1",
+                                    "2", "3", "4")),
+      coverage = col_double(),
+      date_floral = col_date(format = "%Y-%m-%d"),
+      flowers = col_double(),
+      mortality = col_double(),
+      site = col_factor(levels = c("SWMREC",
+                                   "CRC", "NWMHRC")),
+      species = col_factor(
+        levels = c(
+          "ACMI2",
+          "AMCA6",
+          "ASSY",
+          "ASTU",
+          "ASVE",
+          "CARO2",
+          "CEAM",
+          "CESTM",
+          "CHANA2",
+          "COLA5",
+          "CONTROL",
+          "COPA10",
+          "COTR4",
+          "DAFR6",
+          "DAPU5",
+          "ECPU",
+          "ERYU",
+          "HEOC2",
+          "HERI",
+          "HEST",
+          "HIGR3",
+          "HYPR",
+          "LECA8",
+          "LEHI2",
+          "LIAS",
+          "LICY",
+          "LOCO6",
+          "MOFI",
+          "MOPU",
+          "MOWED",
+          "OEBI",
+          "OEFR",
+          "OLRI",
+          "PEDI",
+          "PEHI",
+          "POAR7",
+          "POSI2",
+          "PYPI",
+          "PYVI",
+          "RAPI",
+          "RHCO",
+          "RUHI2",
+          "SEOB2",
+          "SIIN2",
+          "SITE",
+          "SOJU",
+          "SONE",
+          "SOSP2",
+          "SYOO",
+          "SYSE2",
+          "TROH",
+          "VEST",
+          "SILA3",
+          "ROCA4",
+          "LUPE3"
+        )
+      ),
+      tallest_flower = col_double(),
+      total_flowers = col_double(),
+      adj_total_flowers = col_double(),
+      units = col_double(),
+      vac_time = col_double()
+    )
+  )
+View(floral_raw)
+floral<-floral_raw
 
-#Bring in Vacuum data
-# vac.RAW<-read.csv("Vac_Data_2015_JK_03182016.csv",header=TRUE)
-# vac.RAW<-read.csv("Vac_Data_2015_DG_2-7-2017 Refined.csv",header=TRUE)
-vac.RAW<-read.csv("Vac_Data_2015_DG_2-7-2017 Refined2.csv",header=TRUE)
 
-vac<-vac.RAW
+# Import Vac data ----
+library(readr)
+vac_raw <-
+  read_csv(
+    "C:/Users/gibso124/Dropbox/MSU Data Analysis/Natural Enemies Data Analysis/NativePlants/Vac_Data_2015_DG_2-7-2017 Refined2.csv",
+    col_types = cols(
+      block = col_factor(levels = c("1",
+                                    "2", "3", "4")),
+      date_vac = col_date(format = "%Y-%m-%d"),
+      site = col_factor(levels = c("SWMREC",
+                                   "CRC", "NWMHRC")),
+      species = col_factor(
+        levels = c(
+          "ACMI2",
+          "AMCA6",
+          "ASSY",
+          "ASTU",
+          "ASVE",
+          "CARO2",
+          "CEAM",
+          "CESTM",
+          "CHANA2",
+          "COLA5",
+          "CONTROL",
+          "COPA10",
+          "COTR4",
+          "DAFR6",
+          "DAPU5",
+          "ECPU",
+          "ERYU",
+          "HEOC2",
+          "HERI",
+          "HEST",
+          "HIGR3",
+          "HYPR",
+          "LECA8",
+          "LEHI2",
+          "LIAS",
+          "LICY",
+          "LOCO6",
+          "MOFI",
+          "MOPU",
+          "MOWED",
+          "OEBI",
+          "OEFR",
+          "OLRI",
+          "PEDI",
+          "PEHI",
+          "POAR7",
+          "POSI2",
+          "PYPI",
+          "PYVI",
+          "RAPI",
+          "RHCO",
+          "RUHI2",
+          "SEOB2",
+          "SIIN2",
+          "SITE",
+          "SOJU",
+          "SONE",
+          "SOSP2",
+          "SYOO",
+          "SYSE2",
+          "TROH",
+          "VEST",
+          "SILA3",
+          "ROCA4",
+          "LUPE3"
+        )
+      )
+    )
+  )
+View(vac_raw)
+vac<-vac_raw
+
+
+# Bring in floral area reference ----
+{
+  #Bring in floral area
+  area<-read.csv("area.csv",header=TRUE)
+  
+  #Check on data quality
+  summary(area)
+  
+  #Calculate new mean area in 'area'
+  area$avgarea<-rowMeans(area[,4:8])
+  
+  #Remove excess variables from area
+  area$f1<-NULL
+  area$f2<-NULL
+  area$f3<-NULL
+  area$f4<-NULL
+  area$f5<-NULL
+
+
+  
+  #merge into floral
+  floral<-merge(floral,area,by=c('species'),all.x=TRUE)
+  
+  #calculate total floral area
+  floral$totalarea<- floral$adj_total_flowers * floral$avgarea
+}
+
+# Import names ----
+# Bring in Names file.
+  names<-read.csv('names.csv',header=TRUE)
+  # Merge into floral
+  floral<-merge(floral,names,by=c('species'),all.x=TRUE)
+
+# Import floral color reference ----
+library(readr)
+color <-
+  read_csv(
+    "C:/Users/gibso124/Dropbox/MSU Data Analysis/Natural Enemies Data Analysis/NativePlants/floral_color_4_21.csv",
+    col_types = cols(
+      `LM (R - G)` = col_skip(),
+      `MS (Y-B)` = col_skip(),
+      color = col_factor(levels = c(
+        "white",
+        "yellow", "orange", "pink", "purple"
+      )),
+      notes = col_skip(),
+      species = col_factor(
+        levels = c(
+          "ACMI2",
+          "AMCA6",
+          "ASSY",
+          "ASTU",
+          "ASVE",
+          "BAALM",
+          "CARO2",
+          "CEAM",
+          "CESTM",
+          "CHANA2",
+          "COLA5",
+          "CONTROL",
+          "COPA10",
+          "COTR4",
+          "DAFR6",
+          "DAPU5",
+          "ECPU",
+          "ERYU",
+          "HEOC2",
+          "HERI",
+          "HEST",
+          "HIGR3",
+          "HYPR",
+          "LECA8",
+          "LEHI2",
+          "LIAS",
+          "LICY",
+          "LOCO6",
+          "LUPE3",
+          "MOFI",
+          "MOPU",
+          "MOWED",
+          "OEBI",
+          "OEFR",
+          "OLRI",
+          "PEDI",
+          "PEHI",
+          "POAR7",
+          "POSI2",
+          "PYPI",
+          "PYVI",
+          "RAPI",
+          "RHCO",
+          "ROCA4",
+          "RUHI2",
+          "SEOB2",
+          "SIIN2",
+          "SILA3",
+          "SITE",
+          "SOJU",
+          "SONE",
+          "SOSP2",
+          "SYOO",
+          "SYSE2",
+          "TROH",
+          "VEST"
+        )
+      )
+    )
+  )
+View(color)
+
+# Merge into floral
+floral<-merge(floral,color,by=c('species'),all.x=TRUE)
+
+
+
 
 ##########################################################################-
+# Import pollen reference ----
+# Bring in pollen file.
+pollen<-read.csv('pollen.csv',header=TRUE)
+# Merge into floral
+floral<-merge(floral,pollen,by=c('species'),all.x=TRUE)
+#calculate total floral pollen
+floral$totalpollen<- floral$adj_total_flowers * floral$poll_per_flower
+
 #### CLEAN AND STANDARDIZE #### ----
 ##########################################################################-
 
-#Sample variable in vac.data is reading as factor, which doesn't sort properly.  
-is.numeric(vac$sample) #data type is numeric, so it should sort now
-
 
 #I know that the dates of floral data do not always match the dates of vac data (multiple sampling days)
-#extract month of year. Week is very useful for a phenology type analyses
-#because you don't have to deal with day-of-month numbers starting over 
-#in the middle of a phenological event.
-#Use Lubridate package to convert dates to week of year.
-library(lubridate)
-# #format original dates in a new column in ISO format.
-# floral$date<-mdy(floral$date)
-# vac$date_vac<-mdy(vac$date_vac)
-# #specify origin of dates (useful after merging)
-# floral$floral_date<-floral$date
-# floral$date<-NULL
+#extract month of year. Converting to week for merging solves this problem.
 #Get day of year (1-365)
+library(lubridate)
 floral$DOY<-yday(floral$date_floral) 
 
 
@@ -75,15 +316,6 @@ floral$sitenum<-gsub('SWMREC','3',floral$sitenum)
 #Defines 'site' and 'sitenum' as factors whose order in df can determine chart order
 floral$site<-factor(floral$site, levels=unique(floral$site))
 floral$sitenum<-factor(floral$sitenum, levels=unique(floral$sitenum))
-
-# #Fixed CAPS inconsistency in the 'species' column.
-# #Changes column from factor to character, which causes problems.
-# #change it back with as.factor after each line.
-# floral$species<-gsub('control','CONTROL',floral$species)
-# as.factor(floral$species)
-# floral$species<-gsub('mowed','MOWED',floral$species)
-# as.factor(floral$species)
-
 
 
 #Concatenate week, site, block, species in both 'floral' and 'vac' to create a single variable that uniquely identifies each sample.
