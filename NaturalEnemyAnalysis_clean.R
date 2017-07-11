@@ -10,7 +10,7 @@
 library(readr)
 floral_raw <-
   read_csv(
-    "C:/Users/gibso124/Dropbox/MSU Data Analysis/Natural Enemies Data Analysis/NativePlants/2015_floral_Data_5_2_2017_Refined.csv",
+    "2015_floral_Data_5_2_2017_Refined.csv",
     col_types = cols(
       block = col_factor(levels = c("1",
                                     "2", "3", "4")),
@@ -94,7 +94,7 @@ floral<-floral_raw
 library(readr)
 vac_raw <-
   read_csv(
-    "C:/Users/gibso124/Dropbox/MSU Data Analysis/Natural Enemies Data Analysis/NativePlants/Vac_Data_2015_DG_2-7-2017 Refined2.csv",
+    "Vac_Data_2015_DG_2-7-2017 Refined2.csv",
     col_types = cols(
       block = col_factor(levels = c("1",
                                     "2", "3", "4")),
@@ -510,8 +510,8 @@ all.data<-merge(vac.peak,floral.peak,by=c('site','week','species','block'),all.x
 ## Find lines that failed to merge ##
 {
 #subset NAs from all.data and all.data2 to for easier to deal with "error lists"
-floral.missing<-subset(all.data, is.na(date_vac))
-vac.missing<-subset(all.data2, is.na(date_floral))
+floral.missing<-subset(all.data, is.na(date_floral))
+vac.missing<-subset(all.data2, is.na(date_vac))
 }
 
 ## Identifying duplicates in VAC data ##
@@ -533,12 +533,12 @@ vac.missing<-subset(all.data2, is.na(date_floral))
 
 ## Save the evidence as CSV for more convenient sleuthing ##
 {#Export Data
-write.csv(vac.missing, 'vac.missing.2.7.2017.csv')
-write.csv(floral.missing, 'floral.missing.2.7.2017.csv')
-write.csv(vac.duplicates, 'vac.duplicates.2.7.2017.csv')
-write.csv(floral.duplicates, 'floral.duplicates.2.7.2017.csv')
-write.csv(vac,'cleaned vac data.2.7.2017.csv')
-write.csv(floral,'cleaned floral data.2.7.2017.csv')
+write.csv(vac.missing, 'vac.missing.5.12.2017.csv')
+write.csv(floral.missing, 'floral.missing.5.12.2017.csv')
+write.csv(vac.duplicates, 'vac.duplicates.5.12.2017.csv')
+write.csv(floral.duplicates, 'floral.duplicates.5.12.2017.csv')
+write.csv(vac,'cleaned vac data.5.12.2017.csv')
+write.csv(floral,'cleaned floral data.5.12.2017.csv')
 }
 
 ##########################################################################-
