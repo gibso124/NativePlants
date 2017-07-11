@@ -365,8 +365,8 @@ barplot.1
 #Currently Optimized for 10 x 16 inch PDF
 #theme 'bw' has gridlines, theme 'classic' does not
 library(ggplot2)
-fullsite<-ggplot(ALLsig, aes(x=reorder(sci_name,DOYphenol), y=ne))+
-  geom_bar(stat="identity", colour="black")+
+fullsite<-ggplot(ALLsig, aes(x=reorder(scientific_name,DOYphenol), y=ne))+
+  geom_bar(stat="identity", fill = 'tomato2', colour="black")+
   geom_errorbar(aes(ymin=ne-ne.se, ymax=ne+ne.se),
                 width=.4,
                 size=0.5)+
@@ -377,8 +377,9 @@ fullsite<-ggplot(ALLsig, aes(x=reorder(sci_name,DOYphenol), y=ne))+
   theme(axis.text.x=element_text(angle=65,
                                  hjust=1,
                                  colour = 'black'),
-        axis.text.y=element_text(colour = 'black'))
-  # ylim(-14, 80) + # Pie chart space: SW & CRC = (-20, 115)  NWMHRC = (-14, 80)
+        axis.text.y=element_text(colour = 'black'))+
+
+  # ylim(-14,80) + # Pie chart space: SW & CRC = (-20, 115)  NWMHRC = (-14, 80)
   
   # # Bloom Period Lines
   # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
@@ -386,11 +387,11 @@ fullsite<-ggplot(ALLsig, aes(x=reorder(sci_name,DOYphenol), y=ne))+
 
   # # Controls
   # geom_point(data=SWsig, aes(x=as.numeric(reorder(scientific_name,DOYphenol)), y=mowed_ne, group=1))
-  # geom_point(data=ALLsig, size = 3, aes(x=as.numeric(reorder(sci_name,DOYphenol)), y=mowed_ne, group=1))
+  geom_point(data=ALLsig, size = 3, aes(x=as.numeric(reorder(scientific_name,DOYphenol)), y=mowed_ne, group=1))
 fullsite
 
 #save to pdf
-pdf("Significant only - 2015 NE statewide means.pdf", height=10, width=16) # line widths and font size are optimized for this PDF size
+pdf("Significant only - 2015 NE statewide means - red.pdf", height=10, width=16) # line widths and font size are optimized for this PDF size
 fullsite
 dev.off()
 
@@ -492,7 +493,7 @@ dev.off()
 #Currently Optimized for 10 x 16 inch PDF
 #theme 'bw' has gridlines, theme 'classic' does not
 library(ggplot2)
-neherb<-ggplot(N.sig, aes(x=reorder(sci_name,DOYphenol), y=abundance, fill=class))+
+neherb<-ggplot(N, aes(x=reorder(sci_name,DOYphenol), y=abundance, fill=class))+
   geom_bar(stat="identity",
            colour="black")+
   
@@ -514,20 +515,20 @@ neherb<-ggplot(N.sig, aes(x=reorder(sci_name,DOYphenol), y=abundance, fill=class
                                  hjust=1,
                                  colour = 'black'),
         axis.text.y=element_text(colour = 'black'))+
-  # ylim(-130, 115) + # tO ACCOUNT FOR SYSE2 OUTLIER AT CRC full site
-  expand_limits(y=-55) + # Pie space. SWMREC = -120    CRC = -150     NWMHRC = -55
+  # ylim(-120, 100) + # tO ACCOUNT FOR SYSE2 OUTLIER AT CRC full site
+  # expand_limits(y=-55) + # Pie space. SWMREC = -120    CRC = -150     NWMHRC = -55
   
-  geom_vline(xintercept=2.5, color='dark gray',size=0.5,   linetype='dashed')+ 
-  geom_vline(xintercept=9.5, color='dark gray',size=0.5,   linetype='dashed')+ 
+  geom_vline(xintercept=16.5, color='dark gray',size=0.5,   linetype='dashed')+ 
+  geom_vline(xintercept=35.5, color='dark gray',size=0.5,   linetype='dashed')+ 
   
-  geom_point(data=N.sig, size = 3, aes(x=as.numeric(reorder(sci_name,DOYphenol)), 
+  geom_point(data=N, size = 2, aes(x=as.numeric(reorder(sci_name,DOYphenol)), 
                                        y=mowed_ne, group=1))+
-  geom_point(data=N.sig, shape = 17, size = 3, aes(x=as.numeric(reorder(sci_name,DOYphenol)), 
+  geom_point(data=N, shape = 17, size = 2, aes(x=as.numeric(reorder(sci_name,DOYphenol)), 
                                        y=-mowed_herb, group=1))
 neherb
 
 #save to pdf
-pdf("Significant only - NWMHRC direct stacked.pdf", height=10, width=16) # line widths and font size are optimized for this PDF size
+pdf("NWMHRC direct stacked.pdf", height=10, width=16) # line widths and font size are optimized for this PDF size
 neherb
 dev.off()
 
