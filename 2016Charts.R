@@ -230,7 +230,7 @@ sbar<-ggplot(data = s20,
 sbar
 
 #save to pdf
-pdf("test.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
+pdf("SWMREC2016.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
 sbar
 dev.off()
 
@@ -241,89 +241,97 @@ cbar<-ggplot(data = c20,
                x = reorder(sci_name,DOYphenol), 
                y = ne))+
   geom_bar(stat = "identity", 
-           fill = 'tomato2', 
-           colour = "black", 
-           size = 0.25)+
+           colour = "black",
+           fill = ifelse(c20$exotic  == "y",
+                         "gray", 
+                         "tomato2"),
+           size = 0.15)+
   geom_errorbar(aes(
     ymin = ne-ne.se, 
     ymax = ne),
     width = .4,
-    size = 0.25)+
-  theme_classic(base_size = 12)+
+    size = 0.15)+
+  theme_classic(base_size = 8)+
   guides(fill = FALSE)+  
-  labs(title = '\nCRC 2015 - Top 20')+
-  ylab("Mean natural enemies / m2 - SE\n")+
-  xlab("Plant species")+
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.text.x = element_text(angle = 90,
+  labs(title = '2016',
+       y = expression(Mean~natural~enemies~"/"~m^{2}~"-"~SE),
+       x = "Plant species")+
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+        axis.text.x = element_text(face = "italic",
+                                   angle = 65,
                                    hjust = 1,
-                                   vjust = 0.5,
+                                   vjust = 1,
                                    colour = 'black'),
         axis.text.y = element_text(colour = 'black'),
-        axis.line = element_line(size = 0.25))+
-  ylim(-15,115) + # 2016
+        axis.line = element_line(size = 0.15),
+        axis.ticks = element_line(size = 0.15))+
+  ylim(-13,105)+ # 2016
   # ylim(-15,100) + # 2015
   # # Bloom Period Lines
   # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
   # geom_vline(xintercept=9.5, color='dark gray',size=0.5,linetype='dashed')+
   geom_point(data = c20, 
-             size = 1, 
+             size = 0.7, 
              aes(x = as.numeric(reorder(sci_name,DOYphenol)), 
                  y = mowed_ne, 
                  group = 1))
 cbar
 
 #save to pdf
-pdf("2015 NE Bar CRC top20.pdf", height=5, width=9) # line widths and font size are optimized for this PDF size
+pdf("CRC2016.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
 cbar
 dev.off()
 
 
 #### Top 20 Bar - NWMHRC ####
+#new
 library(ggplot2)
 nbar<-ggplot(data = n20, 
              aes(
                x = reorder(sci_name,DOYphenol), 
                y = ne))+
   geom_bar(stat = "identity", 
-           fill = 'tomato2', 
-           colour = "black", 
-           size = 0.25)+
+           colour = "black",
+           fill = ifelse(n20$exotic  == "y",
+                         "gray", 
+                         "tomato2"),
+           size = 0.15)+
   geom_errorbar(aes(
     ymin = ne-ne.se, 
     ymax = ne),
     width = .4,
-    size = 0.25)+
-  theme_classic(base_size = 12)+
+    size = 0.15)+
+  theme_classic(base_size = 8)+
   guides(fill = FALSE)+  
-  labs(title = '\nNWMHRC 2015 - Top 20')+
-  ylab("Mean natural enemies / m2 - SE\n")+
-  xlab("Plant species")+
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.text.x = element_text(angle = 90,
+  labs(title = '2016',
+       y = expression(Mean~natural~enemies~"/"~m^{2}~"-"~SE),
+       x = "Plant species")+
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+        axis.text.x = element_text(face = "italic",
+                                   angle = 65,
                                    hjust = 1,
-                                   vjust = 0.5,
+                                   vjust = 1,
                                    colour = 'black'),
         axis.text.y = element_text(colour = 'black'),
-        axis.line = element_line(size = 0.25))+
-  # ylim(-5,35) + # 2016
-  ylim(-8,60) + # 2015
-  
+        axis.line = element_line(size = 0.15),
+        axis.ticks = element_line(size = 0.15))+
+  ylim(-5,35) + # 2016
+  # ylim(-8,60) + # 2015
   # # Bloom Period Lines
   # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
   # geom_vline(xintercept=9.5, color='dark gray',size=0.5,linetype='dashed')+
-  
   geom_point(data = n20, 
-             size = 1, 
+             size = 0.7, 
              aes(x = as.numeric(reorder(sci_name,DOYphenol)), 
                  y = mowed_ne, 
                  group = 1))
 nbar
 
 #save to pdf
-pdf("2015 NE Bar NWMHRC top20.pdf", height=5, width=9) # line widths and font size are optimized for this PDF size
+pdf("NWMHRC2016.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
 nbar
 dev.off()
+
 
 #### NE PLOTS: Full Site Plots ####
 #Currently Optimized for 10 x 16 inch PDF
