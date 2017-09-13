@@ -115,6 +115,7 @@ s20 <-
   filter(site == "SWMREC") %>%
   arrange(-ne) %>%
   slice(1:20) %>%
+  arrange(sci_name) %>%
   arrange(DOYphenol)
 
 c20 <-
@@ -122,6 +123,7 @@ c20 <-
   filter(site == "CRC") %>%
   arrange(-ne) %>%
   slice(1:20) %>%
+  arrange(sci_name) %>%
   arrange(DOYphenol)
 
 n20 <-
@@ -129,9 +131,50 @@ n20 <-
   filter(site == "NWMHRC") %>%
   arrange(-ne) %>%
   slice(1:20) %>%
+  arrange(sci_name) %>%
   arrange(DOYphenol)
 }
 
+# Subset "Best Bets"
+{ 
+  #SWMREC
+  SWbest<-summarized.data[which(summarized.data$site == 'SWMREC'),]
+  SWbest<-SWbest[which(SWbest$species == 'ACMI2' | SWbest$species == 'ASVE' |
+                         SWbest$species == 'COTR4' | SWbest$species == 'DAFR6' |
+                         SWbest$species == 'ERYU' | SWbest$species == 'HEOC2' |
+                         SWbest$species == 'HEST' | SWbest$species == 'MOFI' |
+                         SWbest$species == 'MOPU' | SWbest$species == 'OLRI' |
+                         SWbest$species == 'PYPI' | SWbest$species == 'PYVI' |
+                         SWbest$species == 'SIIN2' | SWbest$species == 'SOJU'  |
+                         SWbest$species == 'SONE' | SWbest$species == 'SOSP2'  |
+                         SWbest$species == 'SYOO' | SWbest$species == 'SYSE2' ),]
+  
+  # CRC
+  CRCbest<-summarized.data[which(summarized.data$site == 'CRC'),]
+  CRCbest<-CRCbest[which(CRCbest$species == 'ACMI2' | CRCbest$species == 'ASVE' |
+                           CRCbest$species == 'COTR4' | CRCbest$species == 'DAFR6' |
+                           CRCbest$species == 'ERYU' | CRCbest$species == 'HEOC2' |
+                           CRCbest$species == 'HEST' | CRCbest$species == 'MOFI' |
+                           CRCbest$species == 'MOPU' | CRCbest$species == 'OLRI' |
+                           CRCbest$species == 'PYPI' | CRCbest$species == 'PYVI' |
+                           CRCbest$species == 'SIIN2' | CRCbest$species == 'SOJU'  |
+                           CRCbest$species == 'SONE' | CRCbest$species == 'SOSP2'  |
+                           CRCbest$species == 'SYOO' | CRCbest$species == 'SYSE2' ),]
+
+  # Combined sites 
+  # (Bars will have seams between site means if using summarized.data)
+  ALLbest<-summarized.data[which(summarized.data$species == 'ACMI2' | summarized.data$species == 'ASVE' |
+                                   summarized.data$species == 'COTR4' | summarized.data$species == 'DAFR6' |
+                                   summarized.data$species == 'ERYU' | summarized.data$species == 'HEOC2' |
+                                   summarized.data$species == 'HEST' | summarized.data$species == 'MOFI' |
+                                   summarized.data$species == 'MOPU' | summarized.data$species == 'OLRI' |
+                                   summarized.data$species == 'PYPI' | summarized.data$species == 'PYVI' |
+                                   summarized.data$species == 'SIIN2' | summarized.data$species == 'SOJU'  |
+                                   summarized.data$species == 'SONE' | summarized.data$species == 'SOSP2'  |
+                                   summarized.data$species == 'SYOO' | summarized.data$species == 'SYSE2' ),]
+  
+}
+  
  #Sig only Subsetting (OLD)
 { 
   # #SWMREC
@@ -206,7 +249,7 @@ sbar<-ggplot(data = s20,
                 size = 0.15)+
   theme_classic(base_size = 8)+
   guides(fill = FALSE)+  
-  labs(title = '2016',
+  labs(title = '2015',
        y = expression(Mean~natural~enemies~"/"~m^{2}~"-"~SE),
        x = "Plant species")+
   theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
@@ -217,8 +260,8 @@ sbar<-ggplot(data = s20,
                                  colour = 'black'),
         axis.text.y = element_text(colour = 'black'),
         axis.line = element_line(size = 0.15))+
-  ylim(-15,100) + # Pie chart space 2016:  CRC = (-15, 115)  NWMHRC = (-4,35)
-  # ylim(-15,100) + # Pie chart space 2015: SW & CRC = (-20, 115)  NWMHRC = (-14, 80)
+  # ylim(-15,100) + # Pie chart space 2016:  CRC = (-15, 115)  NWMHRC = (-4,35)
+  ylim(-15,100) + # Pie chart space 2015: SW & CRC = (-20, 115)  NWMHRC = (-14, 80)
   # # Bloom Period Lines
   # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
   # geom_vline(xintercept=9.5, color='dark gray',size=0.5,linetype='dashed')+
@@ -230,7 +273,7 @@ sbar<-ggplot(data = s20,
 sbar
 
 #save to pdf
-pdf("SWMREC2016.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
+pdf("SWMREC2015.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
 sbar
 dev.off()
 
@@ -253,7 +296,7 @@ cbar<-ggplot(data = c20,
     size = 0.15)+
   theme_classic(base_size = 8)+
   guides(fill = FALSE)+  
-  labs(title = '2016',
+  labs(title = '2015',
        y = expression(Mean~natural~enemies~"/"~m^{2}~"-"~SE),
        x = "Plant species")+
   theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
@@ -265,8 +308,8 @@ cbar<-ggplot(data = c20,
         axis.text.y = element_text(colour = 'black'),
         axis.line = element_line(size = 0.15),
         axis.ticks = element_line(size = 0.15))+
-  ylim(-13,105)+ # 2016
-  # ylim(-15,100) + # 2015
+  # ylim(-13,105)+ # 2016
+  ylim(-15,100) + # 2015
   # # Bloom Period Lines
   # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
   # geom_vline(xintercept=9.5, color='dark gray',size=0.5,linetype='dashed')+
@@ -278,7 +321,7 @@ cbar<-ggplot(data = c20,
 cbar
 
 #save to pdf
-pdf("CRC2016.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
+pdf("CRC2015.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
 cbar
 dev.off()
 
@@ -303,7 +346,7 @@ nbar<-ggplot(data = n20,
     size = 0.15)+
   theme_classic(base_size = 8)+
   guides(fill = FALSE)+  
-  labs(title = '2016',
+  labs(title = '2015',
        y = expression(Mean~natural~enemies~"/"~m^{2}~"-"~SE),
        x = "Plant species")+
   theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
@@ -315,8 +358,8 @@ nbar<-ggplot(data = n20,
         axis.text.y = element_text(colour = 'black'),
         axis.line = element_line(size = 0.15),
         axis.ticks = element_line(size = 0.15))+
-  ylim(-5,35) + # 2016
-  # ylim(-8,60) + # 2015
+  # ylim(-5,35) + # 2016
+  ylim(-8,60) + # 2015
   # # Bloom Period Lines
   # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
   # geom_vline(xintercept=9.5, color='dark gray',size=0.5,linetype='dashed')+
@@ -328,8 +371,107 @@ nbar<-ggplot(data = n20,
 nbar
 
 #save to pdf
-pdf("NWMHRC2016.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
+pdf("NWMHRC2015.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
 nbar
+dev.off()
+
+
+#### Best Bets Bar - CRC (from Top 20 Bar - CRC) ####
+library(ggplot2)
+ALLbar<-ggplot(data = CRCbest, 
+             aes(
+               x = reorder(sci_name,DOYphenol), 
+               y = ne))+
+  geom_bar(stat = "identity", 
+           colour = "black",
+           fill = ifelse(CRCbest$exotic  == "y",
+                         "gray", 
+                         "tomato2"),
+           size = 0.15)+
+  geom_errorbar(aes(
+    ymin = ne-ne.se, 
+    ymax = ne),
+    width = .4,
+    size = 0.15)+
+  theme_classic(base_size = 8)+
+  guides(fill = FALSE)+  
+  labs(title = '2015',
+       y = expression(Mean~natural~enemies~"/"~m^{2}~"-"~SE),
+       x = "Plant species")+
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
+        axis.text.x = element_text(face = "italic",
+                                   angle = 65,
+                                   hjust = 1,
+                                   vjust = 1,
+                                   colour = 'black'),
+        axis.text.y = element_text(colour = 'black'),
+        axis.line = element_line(size = 0.15),
+        axis.ticks = element_line(size = 0.15))+
+  ylim(-13,105)+ # 2016
+  # ylim(-15,100) + # 2015
+  # # Bloom Period Lines
+  # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
+  # geom_vline(xintercept=9.5, color='dark gray',size=0.5,linetype='dashed')+
+  geom_point(data = CRCbest, 
+             size = 0.7, 
+             aes(x = as.numeric(reorder(sci_name,DOYphenol)), 
+                 y = mowed_ne, 
+                 group = 1))
+ALLbar
+
+#save to pdf
+pdf("CRCBest Bets 2016.pdf", height=3.3, width=6) # line widths and font size are optimized for this PDF size
+ALLbar
+dev.off()
+
+
+#### Best Bets Bar - Combined Sites (from Top 20 Bar - CRC) ####
+library(ggplot2)
+ALLbar<-ggplot(data = ALLbest, 
+               aes(
+                 x = reorder(sci_name,DOYphenol), 
+                 y = ne))+
+  geom_bar(stat = "identity", 
+           colour = "black",
+           fill = ifelse(ALLbest$exotic  == "y",
+                         "gray", 
+                         "tomato2"),
+           size = 0.15)+
+  geom_errorbar(aes(
+    ymin = ne-ne.se, 
+    ymax = ne),
+    width = .4,
+    size = 0.15)+
+  theme_classic(base_size = 9)+
+  guides(fill = FALSE)+  
+  labs(title = '2016',
+       y = expression(Mean~natural~enemies~"/"~m^{2}~"-"~SE),
+       x = "Plant species")+
+  theme(plot.title = element_blank(),
+        axis.text.x = element_text(size = 10,
+                                   face = "italic",
+                                   angle = 65,
+                                   hjust = 1,
+                                   vjust = 1,
+                                   colour = 'black'),
+        axis.text.y = element_text(colour = 'black'),
+        axis.line = element_line(size = 0.15),
+        axis.ticks = element_line(size = 0.15))+
+  ylim(-8,60)+ # 2016
+  # ylim(-15,100) + # 2015
+  # # Bloom Period Lines
+  # geom_vline(xintercept=2.5, color='dark gray',size=0.5,linetype='dashed')+
+  # geom_vline(xintercept=9.5, color='dark gray',size=0.5,linetype='dashed')+
+  geom_point(data = ALLbest, 
+             size = 0.7, 
+             aes(x = as.numeric(reorder(sci_name,DOYphenol)), 
+                 y = mowed_ne, 
+                 group = 1))
+ALLbar
+
+#save to pdf
+pdf("ALLBest Bets 2016 (5).pdf", height=4, width=6) # line widths and font size are optimized for this PDF size
+ALLbar
 dev.off()
 
 
@@ -424,7 +566,24 @@ dev.off()
     rename(abundance = `value`)
   
 }
-
+# Best Bets
+{
+  CRCbestpie <-
+    CRCbest %>%
+    select(c(1,2,3,4,5,6,26,27,7,9,11,13,15,17)) %>%
+    melt(id=c("site","species",'sitenum','scientific_name',
+              'sci_name','common_name','week','DOYphenol')) %>%
+    rename(order = `variable`) %>%
+    rename(abundance = `value`)
+  
+  ALLbestpie <-
+    ALLbest %>%
+    select(c(1,2,3,4,24,25,5,7,9,11,13,15)) %>%
+    melt(id=c("species",'scientific_name',
+              'sci_name','common_name','week','DOYphenol')) %>%
+    rename(order = `variable`) %>%
+    rename(abundance = `value`)
+}
 # Temporary fix for 2015
 {
   s20pie <-
@@ -590,6 +749,90 @@ npie
 #save to pdf
 pdf("2015 NE Pie NWMHRC top 20.pdf", height=2, width=8.075)
 npie
+dev.off()
+#### Best Bets Pie - CRC (from Top 20 Pie - NWMHRC) ####
+library(RColorBrewer)
+library(ggplot2)
+bestpie<-ggplot(CRCbestpie,
+             aes(x = factor(1), 
+                 y = abundance, 
+                 fill = factor(order)))+
+  theme_classic(base_size = 4)+
+  scale_fill_brewer(type = 'qual', 
+                    palette = 7, 
+                    guide = 'legend') +
+  geom_bar(stat = 'identity', 
+           width = 1, 
+           position = 'fill') + 
+  scale_y_continuous(
+    breaks = NULL,
+    expand = c(0,0))+
+  guides(fill = FALSE)+
+  theme(
+    title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    # strip.text = element_blank(),
+    strip.background = element_blank(),
+    panel.grid = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    panel.spacing = unit(-.3, 'lines'),
+    plot.background = element_blank(),
+    plot.margin = unit(c(0,-0.03,0,-0.03), "inch") #T,R,B,L
+  )+
+  facet_wrap(~reorder(sci_name, DOYphenol), 
+             ncol = 20)+
+  coord_polar(theta = 'y')
+bestpie
+
+#save to pdf
+pdf("2016 NE Pie CRC Best Bets.pdf", height=2, width=8.075)
+bestpie
+dev.off()
+#### Best Bets Pie - Combined Sites(from Top 20 Pie - NWMHRC) ####
+library(RColorBrewer)
+library(ggplot2)
+bestpie<-ggplot(ALLbestpie,
+                aes(x = factor(1), 
+                    y = abundance, 
+                    fill = factor(order)))+
+  theme_classic(base_size = 4)+
+  scale_fill_brewer(type = 'qual', 
+                    palette = 7, 
+                    guide = 'legend') +
+  geom_bar(stat = 'identity', 
+           width = 1, 
+           position = 'fill') + 
+  scale_y_continuous(
+    breaks = NULL,
+    expand = c(0,0))+
+  guides(fill = FALSE)+
+  theme(
+    title = element_blank(),
+    axis.line = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    # strip.text = element_blank(),
+    strip.background = element_blank(),
+    panel.grid = element_blank(),
+    panel.background = element_blank(),
+    panel.border = element_blank(),
+    panel.spacing = unit(-.3, 'lines'),
+    plot.background = element_blank(),
+    plot.margin = unit(c(0,-0.03,0,-0.03), "inch") #T,R,B,L
+  )+
+  facet_wrap(~reorder(sci_name, DOYphenol), 
+             ncol = 20)+
+  coord_polar(theta = 'y')
+bestpie
+
+#save to pdf
+pdf("2016 NE Pie Combined Sites Best Bets.pdf", height=2, width=8.075)
+bestpie
 dev.off()
 #### NE PLOTS: Pie Charts  ####
 #theme 'bw' has gridlines, theme 'classic' does not
