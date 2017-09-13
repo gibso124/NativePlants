@@ -86,7 +86,7 @@ floral_raw <-
       vac_time = col_double()
     )
   )
-View(floral_raw)
+# View(floral_raw)
 floral<-floral_raw
 
 
@@ -162,7 +162,7 @@ vac_raw <-
       )
     )
   )
-View(vac_raw)
+# View(vac_raw)
 vac<-vac_raw
 
 
@@ -274,7 +274,7 @@ color <-
       )
     )
   )
-View(color)
+# View(color)
 
 # Merge into floral
 floral<-merge(floral,color,by=c('species'),all.x=TRUE)
@@ -506,40 +506,40 @@ all.data<-merge(vac.peak,floral.peak,by=c('site','week','species','block'),all.x
 
 
 #### CLEANING: Finding floral and vac merge problems #### ----
-
-## Find lines that failed to merge ##
-{
-#subset NAs from all.data and all.data2 to for easier to deal with "error lists"
-floral.missing<-subset(all.data, is.na(date_floral))
-vac.missing<-subset(all.data2, is.na(date_vac))
-}
-
-## Identifying duplicates in VAC data ##
-{
-  #Find duplicates, identify in new column
-  vac$duplicate<-duplicated(vac$sample_ident_vac)| duplicated(vac$sample_ident_vac, fromLast = TRUE)
-  #create new file for entries where 'duplicate'=TRUE
-  vac.duplicates<-vac[which(vac$duplicate==TRUE),]
-}
-
-## Identifying duplicates in FLORAL data ##
-{
-#Find duplicates, identify in new column
-  #5 pairs of duplicates: 2 peak, 3 non-peak
-  floral$duplicate<-duplicated(floral$sample_ident_floral)| duplicated(floral$sample_ident_floral, fromLast = TRUE)
-  #create new file for entries where 'duplicate'=TRUE
-  floral.duplicates<-floral[which(floral$duplicate==TRUE),]
-}
+# 
+# ## Find lines that failed to merge ##
+# {
+# #subset NAs from all.data and all.data2 to for easier to deal with "error lists"
+# floral.missing<-subset(all.data, is.na(date_floral))
+# vac.missing<-subset(all.data2, is.na(date_vac))
+# }
+# 
+# ## Identifying duplicates in VAC data ##
+# {
+#   #Find duplicates, identify in new column
+#   vac$duplicate<-duplicated(vac$sample_ident_vac)| duplicated(vac$sample_ident_vac, fromLast = TRUE)
+#   #create new file for entries where 'duplicate'=TRUE
+#   vac.duplicates<-vac[which(vac$duplicate==TRUE),]
+# }
+# 
+# ## Identifying duplicates in FLORAL data ##
+# {
+# #Find duplicates, identify in new column
+#   #5 pairs of duplicates: 2 peak, 3 non-peak
+#   floral$duplicate<-duplicated(floral$sample_ident_floral)| duplicated(floral$sample_ident_floral, fromLast = TRUE)
+#   #create new file for entries where 'duplicate'=TRUE
+#   floral.duplicates<-floral[which(floral$duplicate==TRUE),]
+# }
 
 ## Save the evidence as CSV for more convenient sleuthing ##
-{#Export Data
-write.csv(vac.missing, 'vac.missing.5.12.2017.csv')
-write.csv(floral.missing, 'floral.missing.5.12.2017.csv')
-write.csv(vac.duplicates, 'vac.duplicates.5.12.2017.csv')
-write.csv(floral.duplicates, 'floral.duplicates.5.12.2017.csv')
-write.csv(vac,'cleaned vac data.5.12.2017.csv')
-write.csv(floral,'cleaned floral data.5.12.2017.csv')
-}
+# {#Export Data
+# write.csv(vac.missing, 'vac.missing.5.12.2017.csv')
+# write.csv(floral.missing, 'floral.missing.5.12.2017.csv')
+# write.csv(vac.duplicates, 'vac.duplicates.5.12.2017.csv')
+# write.csv(floral.duplicates, 'floral.duplicates.5.12.2017.csv')
+# write.csv(vac,'cleaned vac data.5.12.2017.csv')
+# write.csv(floral,'cleaned floral data.5.12.2017.csv')
+# }
 
 ##########################################################################-
 #### CREATE NE/HERBIVORE SUM VARIABLES #### ----
